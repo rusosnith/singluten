@@ -9,6 +9,17 @@ Este repositorio mantiene actualizado automáticamente el listado de Alimentos L
 - **`data/alg-historico.csv`**: Histórico completo con fechas de alta y baja
 - **`data/altas_bajas.csv`**: Registro acumulativo de todas las altas y bajas detectadas en cada ejecución
 
+## Estado actual
+
+_Esta sección se actualiza automáticamente en cada ejecución_
+
+| Métrica | Valor |
+|---------|-------|
+| 📅 Inicio del monitoreo | 2025-07-26 |
+| ✅ Productos activos | 23,057 |
+| ❌ Productos dados de baja | 0 |
+| 📊 Total histórico | 23,057 |
+
 ## Funcionamiento
 
 - **Frecuencia**: Se actualiza automáticamente todos los lunes a las 9:00 AM UTC
@@ -34,8 +45,21 @@ El archivo `alg-historico.csv` contiene:
 - **`fecha_alta`**: Cuándo apareció el producto por primera vez
 - **`fecha_baja`**: Cuándo fue eliminado del listado (vacío si está activo)
 
-## Consultas útiles
+## Estado actual
 
+| Métrica | Valor |
+|---------|-------|
+| 📅 Inicio del monitoreo | 2025-07-26 |
+| ✅ Productos activos | 23,057 |
+| ❌ Productos dados de baja | 23,057 |
+| 📊 Total histórico | 46,114 |
+
+### Últimas actualizaciones
+
+| Semana | Altas | Bajas |
+|--------|-------|-------|
+| 2025-07-27 | 23057 | 23057 |
+## Consultas útiles
 
 Para analizar los datos puedes usar pandas:
 

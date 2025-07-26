@@ -216,6 +216,71 @@ def limpiar_dataframe(df):
     
     return df
 
+def actualizar_estadisticas_readme(df_historico):
+    """Actualiza la sección de estadísticas en el README"""
+    # Calcular estadísticas
+    stats = {}
+    
+    # Fecha de primera ejecución (primer alta registrada)
+    stats['fecha_inicio'] = df_historico['fecha_alta'].min()
+    
+    # Productos activos y dados de baja
+    stats['productos_activos'] = len(df_historico[df_historico['fecha_baja'].isna()])
+    stats['productos_dados_baja'] = len(df_historico[df_historico['fecha_baja'].notna()])
+    
+    # Estadísticas semanales si existe altas_bajas.csv
+    stats['stats_semanales'] = []
+    if os.path.exists('data/altas_bajas.csv'):
+        df_ab = pd.read_csv('data/altas_bajas.csv')
+        df_ab['fecha_cambio'] = pd.to_datetime(df_ab['fecha_cambio'])
+        df_ab = df_ab.sort_values('fecha_cambio')
+        
+        # Agrupar por semana
+        weekly_stats = df_ab.groupby([pd.Grouper(key='fecha_cambio', freq='W'), 'tipo_cambio']).size().unstack(fill_value=0)
+        for idx, row in weekly_stats.iterrows():
+            stats['stats_semanales'].append({
+                'semana': idx.strftime('%Y-%m-%d'),
+                'altas': int(row.get('alta', 0)),
+                'bajas': int(row.get('baja', 0))
+            })
+    
+    # Actualizar README
+    with open('README.md', 'r') as f:
+        content = f.read()
+    
+    # Crear la sección de estadísticas
+    stats_section = """## Estado actual
+
+| Métrica | Valor |
+|---------|-------|
+| 📅 Inicio del monitoreo | {} |
+| ✅ Productos activos | {:,} |
+| ❌ Productos dados de baja | {:,} |
+| 📊 Total histórico | {:,} |
+
+### Últimas actualizaciones
+
+| Semana | Altas | Bajas |
+|--------|-------|-------|
+{}
+""".format(
+        stats['fecha_inicio'],
+        stats['productos_activos'],
+        stats['productos_dados_baja'],
+        stats['productos_activos'] + stats['productos_dados_baja'],
+        '\n'.join([f"| {s['semana']} | {s['altas']} | {s['bajas']} |" for s in reversed(stats['stats_semanales'][-4:])])  # Mostrar solo las últimas 4 semanas
+    )
+    
+    if "## Estadísticas" in content:
+        # Reemplazar sección existente
+        content = re.sub(r"## Estadísticas.*?(?=##|$)", stats_section, content, flags=re.DOTALL)
+    else:
+        # Agregar nueva sección antes de "## Consultas útiles"
+        content = content.replace("## Consultas útiles", stats_section + "## Consultas útiles")
+    
+    with open('README.md', 'w') as f:
+        f.write(content)
+
 def main():
     """Función principal"""
     
@@ -236,6 +301,10 @@ def main():
         
         # 4. Actualizar histórico con fechas de alta/baja usando datos limpios
         df_historico = actualizar_historico(df_actual_limpio)
+        
+        # 5. Actualizar estadísticas en README
+        actualizar_estadisticas_readme(df_historico)
+        print("✅ README actualizado con estadísticas")
         
         print("✅ Proceso completado exitosamente")
         
