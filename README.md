@@ -20,6 +20,12 @@ _Esta sección se actualiza automáticamente en cada ejecución_
 | ❌ Productos dados de baja | 0 |
 | 📊 Total histórico | 23,057 |
 
+### Últimas actualizaciones
+
+| Semana | Altas | Bajas |
+|--------|-------|-------|
+| 2025-07-26 | 0 | 0 |
+
 ## Funcionamiento
 
 - **Frecuencia**: Se actualiza automáticamente todos los lunes a las 9:00 AM UTC
@@ -29,6 +35,7 @@ _Esta sección se actualiza automáticamente en cada ejecución_
   3. Genera un CSV equivalente
   4. Actualiza el histórico agregando fechas de alta/baja
   5. Registra en `altas_bajas.csv` todas las altas y bajas detectadas en cada ejecución
+
 ## Archivo de altas y bajas
 
 El archivo `altas_bajas.csv` contiene todas las altas y bajas detectadas en cada ejecución del script. Incluye todas las columnas originales del producto, más:
@@ -47,18 +54,38 @@ El archivo `alg-historico.csv` contiene:
 
 ## Estado actual
 
+_Esta sección se actualiza automáticamente en cada ejecución_
+
 | Métrica | Valor |
 |---------|-------|
 | 📅 Inicio del monitoreo | 2025-07-26 |
 | ✅ Productos activos | 23,057 |
-| ❌ Productos dados de baja | 23,057 |
-| 📊 Total histórico | 46,114 |
+| ❌ Productos dados de baja | 69,171 |
+| 📊 Total histórico | 92,228 |
 
 ### Últimas actualizaciones
 
 | Semana | Altas | Bajas |
 |--------|-------|-------|
-| 2025-07-27 | 23057 | 23057 |
+| 2025-07-27 | 69171 | 69171 |
+
+## Estado actual
+
+_Esta sección se actualiza automáticamente en cada ejecución_
+
+| Métrica | Valor |
+|---------|-------|
+| 📅 Inicio del monitoreo | 2025-07-26 |
+| ✅ Productos activos | 23,057 |
+| ❌ Productos dados de baja | 0 |
+| 📊 Total histórico | 23,057 |
+
+### Últimas actualizaciones
+
+| Semana | Altas | Bajas |
+|--------|-------|-------|
+| 2025-07-26 | 0 | 0 |
+
 ## Consultas útiles
 
 Para analizar los datos puedes usar pandas:
@@ -68,7 +95,6 @@ import pandas as pd
 
 # Cargar datos
 df = pd.read_csv('data/alg-historico.csv')
-
 
 # Productos activos
 activos = df[df['fecha_baja'].isna()]
@@ -85,3 +111,4 @@ bajas = df[(df['fecha_baja'] >= hace_un_mes) & df['fecha_baja'].notna()]
 df_ab = pd.read_csv('data/altas_bajas.csv')
 altas_ult_mes = df_ab[(df_ab['tipo_cambio'] == 'alta') & (df_ab['fecha_cambio'] >= hace_un_mes)]
 bajas_ult_mes = df_ab[(df_ab['tipo_cambio'] == 'baja') & (df_ab['fecha_cambio'] >= hace_un_mes)]
+```

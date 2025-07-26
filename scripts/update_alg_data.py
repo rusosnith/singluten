@@ -58,24 +58,8 @@ def descargar_excel_alg():
         raise
 
 def crear_key_producto(row):
-    """Crea una clave única para identificar un producto"""
-    # Usar las columnas más importantes para crear la clave
-    key_parts = []
-    
-    # Lista de posibles nombres de columnas (el Excel puede variar)
-    possible_columns = ['RNPA', 'SENASA', 'INV', 'Marca', 'Denominación', 'Denominacion']
-    
-    for col in possible_columns:
-        if col in row.index and pd.notna(row[col]) and str(row[col]).strip():
-            key_parts.append(str(row[col]).strip())
-    
-    # Si no encontramos columnas conocidas, usar todas las no-nulas
-    if not key_parts:
-        for col, val in row.items():
-            if pd.notna(val) and str(val).strip():
-                key_parts.append(str(val).strip())
-    
-    return '|'.join(key_parts) if key_parts else str(hash(tuple(row.values)))
+    """Usa solo la columna 'id' como clave única de producto"""
+    return str(row['id'])
 
 def actualizar_historico(df_actual):
     """Actualiza el archivo histórico con fechas de alta/baja"""
@@ -227,29 +211,43 @@ def actualizar_estadisticas_readme(df_historico):
     # Productos activos y dados de baja
     stats['productos_activos'] = len(df_historico[df_historico['fecha_baja'].isna()])
     stats['productos_dados_baja'] = len(df_historico[df_historico['fecha_baja'].notna()])
+    stats['total_historico'] = len(df_historico)
     
-    # Estadísticas semanales si existe altas_bajas.csv
+    # Estadísticas semanales
     stats['stats_semanales'] = []
+    
+    # Si existe el archivo de altas y bajas, procesar estadísticas semanales
     if os.path.exists('data/altas_bajas.csv'):
         df_ab = pd.read_csv('data/altas_bajas.csv')
-        df_ab['fecha_cambio'] = pd.to_datetime(df_ab['fecha_cambio'])
-        df_ab = df_ab.sort_values('fecha_cambio')
-        
-        # Agrupar por semana
-        weekly_stats = df_ab.groupby([pd.Grouper(key='fecha_cambio', freq='W'), 'tipo_cambio']).size().unstack(fill_value=0)
-        for idx, row in weekly_stats.iterrows():
-            stats['stats_semanales'].append({
-                'semana': idx.strftime('%Y-%m-%d'),
-                'altas': int(row.get('alta', 0)),
-                'bajas': int(row.get('baja', 0))
-            })
+        if not df_ab.empty:
+            df_ab['fecha_cambio'] = pd.to_datetime(df_ab['fecha_cambio'])
+            df_ab = df_ab.sort_values('fecha_cambio')
+            
+            # Agrupar por semana
+            weekly_stats = df_ab.groupby([pd.Grouper(key='fecha_cambio', freq='W'), 'tipo_cambio']).size().unstack(fill_value=0)
+            for idx, row in weekly_stats.iterrows():
+                stats['stats_semanales'].append({
+                    'semana': idx.strftime('%Y-%m-%d'),
+                    'altas': int(row.get('alta', 0)),
+                    'bajas': int(row.get('baja', 0))
+                })
+    
+    # Si no hay estadísticas semanales, agregar la fecha actual con 0,0
+    if not stats['stats_semanales']:
+        stats['stats_semanales'].append({
+            'semana': datetime.now().strftime('%Y-%m-%d'),
+            'altas': 0,
+            'bajas': 0
+        })
     
     # Actualizar README
     with open('README.md', 'r') as f:
         content = f.read()
     
-    # Crear la sección de estadísticas
-    stats_section = """## Estado actual
+    # Preparar la sección de estadísticas
+    estado_actual = """## Estado actual
+
+_Esta sección se actualiza automáticamente en cada ejecución_
 
 | Métrica | Valor |
 |---------|-------|
@@ -263,20 +261,21 @@ def actualizar_estadisticas_readme(df_historico):
 | Semana | Altas | Bajas |
 |--------|-------|-------|
 {}
+
 """.format(
         stats['fecha_inicio'],
         stats['productos_activos'],
         stats['productos_dados_baja'],
-        stats['productos_activos'] + stats['productos_dados_baja'],
+        stats['total_historico'],
         '\n'.join([f"| {s['semana']} | {s['altas']} | {s['bajas']} |" for s in reversed(stats['stats_semanales'][-4:])])  # Mostrar solo las últimas 4 semanas
     )
     
     if "## Estadísticas" in content:
         # Reemplazar sección existente
-        content = re.sub(r"## Estadísticas.*?(?=##|$)", stats_section, content, flags=re.DOTALL)
+        content = re.sub(r"## Estadísticas.*?(?=##|$)", estado_actual, content, flags=re.DOTALL)
     else:
         # Agregar nueva sección antes de "## Consultas útiles"
-        content = content.replace("## Consultas útiles", stats_section + "## Consultas útiles")
+        content = content.replace("## Consultas útiles", estado_actual + "## Consultas útiles")
     
     with open('README.md', 'w') as f:
         f.write(content)
