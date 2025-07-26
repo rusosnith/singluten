@@ -99,11 +99,19 @@ def actualizar_historico(df_actual):
     
     if os.path.exists(archivo_historico):
         print("Cargando histórico existente...")
-        df_historico = pd.read_csv(archivo_historico)
-        
-        # Asegurar que el histórico tenga la clave
-        if '_key' not in df_historico.columns:
-            df_historico['_key'] = df_historico.apply(crear_key_producto, axis=1)
+        # Si el archivo existe pero está vacío o corrupto, tratar como primera ejecución
+        try:
+            df_historico = pd.read_csv(archivo_historico)
+            if df_historico.empty:
+                raise pd.errors.EmptyDataError
+            
+            # Asegurar que el histórico tenga la clave
+            if '_key' not in df_historico.columns:
+                df_historico['_key'] = df_historico.apply(crear_key_producto, axis=1)
+        except (pd.errors.EmptyDataError, pd.errors.ParserError):
+            print("Archivo histórico vacío o corrupto, iniciando desde cero...")
+            os.remove(archivo_historico)
+            return actualizar_historico(df_actual)  # Recursión para tratar como primera ejecución
         
         # Encontrar productos nuevos y eliminados
         keys_actual = set(df_actual['_key'])
@@ -197,6 +205,17 @@ def actualizar_historico(df_actual):
 
     return df_historico
 
+def limpiar_dataframe(df):
+    """Limpia el DataFrame de saltos de línea innecesarios"""
+    # Copia para no modificar el original
+    df = df.copy()
+    
+    # Reemplazar saltos de línea por espacios en todas las columnas string
+    for columna in df.select_dtypes(include=['object']).columns:
+        df[columna] = df[columna].astype(str).apply(lambda x: ' '.join(x.split()))
+    
+    return df
+
 def main():
     """Función principal"""
     
@@ -209,13 +228,14 @@ def main():
         df_actual = pd.read_excel(archivo_excel)
         print(f"Productos en archivo actual: {len(df_actual)}")
         
-        # 3. Crear/actualizar CSV equivalente
+        # 3. Limpiar datos y crear/actualizar CSV equivalente
         archivo_csv = 'data/alg-listado.csv'
-        df_actual.to_csv(archivo_csv, index=False)
+        df_actual_limpio = limpiar_dataframe(df_actual)
+        df_actual_limpio.to_csv(archivo_csv, index=False)
         print(f"✅ CSV creado: {archivo_csv}")
         
-        # 4. Actualizar histórico con fechas de alta/baja
-        df_historico = actualizar_historico(df_actual)
+        # 4. Actualizar histórico con fechas de alta/baja usando datos limpios
+        df_historico = actualizar_historico(df_actual_limpio)
         
         print("✅ Proceso completado exitosamente")
         
