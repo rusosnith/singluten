@@ -164,12 +164,7 @@ def actualizar_historico(df_actual):
         df_historico = df_actual.copy()
         df_historico['fecha_alta'] = fecha_hoy
         df_historico['fecha_baja'] = None
-        # Registrar todas como altas
-        if not df_historico.empty:
-            altas_df = df_historico.copy()
-            altas_df['tipo_cambio'] = 'alta'
-            altas_df['fecha_cambio'] = fecha_hoy
-            altas_corrida.append(altas_df)
+        # No registrar altas en la primera ejecución (punto de partida)
     
     # Remover columna auxiliar antes de guardar
     df_historico = df_historico.drop('_key', axis=1)
