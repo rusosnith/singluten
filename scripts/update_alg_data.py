@@ -82,12 +82,17 @@ def actualizar_historico(df_actual):
     
     fecha_hoy = datetime.now().strftime('%Y-%m-%d')
     archivo_historico = 'data/alg-historico.csv'
+    archivo_altas_bajas = 'data/altas_bajas.csv'
     
     # Agregar columnas de fecha si no existen
     if 'fecha_alta' not in df_actual.columns:
         df_actual['fecha_alta'] = None
     if 'fecha_baja' not in df_actual.columns:
         df_actual['fecha_baja'] = None
+
+    # Listas para almacenar altas y bajas de esta corrida
+    altas_corrida = []
+    bajas_corrida = []
     
     # Crear clave única para cada producto actual
     df_actual['_key'] = df_actual.apply(crear_key_producto, axis=1)
@@ -106,21 +111,31 @@ def actualizar_historico(df_actual):
         
         productos_nuevos = keys_actual - keys_historico
         productos_eliminados = keys_historico - keys_actual
-        
+
         print(f"Productos nuevos: {len(productos_nuevos)}")
         print(f"Productos eliminados: {len(productos_eliminados)}")
-        
-        # Marcar productos eliminados con fecha de baja
+
+        # Marcar productos eliminados con fecha de baja y registrar bajas
         if productos_eliminados:
             mask_eliminados = df_historico['_key'].isin(productos_eliminados) & df_historico['fecha_baja'].isna()
             df_historico.loc[mask_eliminados, 'fecha_baja'] = fecha_hoy
-        
-        # Agregar productos nuevos
+            # Registrar bajas
+            bajas_df = df_historico[mask_eliminados].copy()
+            if not bajas_df.empty:
+                bajas_df['tipo_cambio'] = 'baja'
+                bajas_df['fecha_cambio'] = fecha_hoy
+                bajas_corrida.append(bajas_df)
+
+        # Agregar productos nuevos y registrar altas
         if productos_nuevos:
             productos_nuevos_df = df_actual[df_actual['_key'].isin(productos_nuevos)].copy()
             productos_nuevos_df['fecha_alta'] = fecha_hoy
             productos_nuevos_df['fecha_baja'] = None
-            
+            # Registrar altas
+            if not productos_nuevos_df.empty:
+                productos_nuevos_df['tipo_cambio'] = 'alta'
+                productos_nuevos_df['fecha_cambio'] = fecha_hoy
+                altas_corrida.append(productos_nuevos_df)
             # Combinar con histórico
             df_historico = pd.concat([df_historico, productos_nuevos_df], ignore_index=True)
         
@@ -149,15 +164,42 @@ def actualizar_historico(df_actual):
         df_historico = df_actual.copy()
         df_historico['fecha_alta'] = fecha_hoy
         df_historico['fecha_baja'] = None
+        # Registrar todas como altas
+        if not df_historico.empty:
+            altas_df = df_historico.copy()
+            altas_df['tipo_cambio'] = 'alta'
+            altas_df['fecha_cambio'] = fecha_hoy
+            altas_corrida.append(altas_df)
     
     # Remover columna auxiliar antes de guardar
     df_historico = df_historico.drop('_key', axis=1)
     df_actual = df_actual.drop('_key', axis=1)
-    
+
     # Guardar histórico actualizado
     df_historico.to_csv(archivo_historico, index=False)
     print(f"✅ Histórico actualizado: {archivo_historico}")
-    
+
+    # Guardar/Acumular archivo de altas y bajas
+    if altas_corrida or bajas_corrida:
+        # Concatenar todas las altas y bajas de esta corrida
+        cambios_corrida = []
+        if altas_corrida:
+            cambios_corrida.append(pd.concat(altas_corrida, ignore_index=True))
+        if bajas_corrida:
+            cambios_corrida.append(pd.concat(bajas_corrida, ignore_index=True))
+        cambios_corrida_df = pd.concat(cambios_corrida, ignore_index=True) if cambios_corrida else None
+
+        if cambios_corrida_df is not None:
+            # Si ya existe el archivo, acumular
+            if os.path.exists(archivo_altas_bajas):
+                df_altas_bajas = pd.read_csv(archivo_altas_bajas)
+                df_altas_bajas = pd.concat([df_altas_bajas, cambios_corrida_df], ignore_index=True)
+            else:
+                df_altas_bajas = cambios_corrida_df
+            # Guardar
+            df_altas_bajas.to_csv(archivo_altas_bajas, index=False)
+            print(f"✅ Altas y bajas acumuladas: {archivo_altas_bajas}")
+
     return df_historico
 
 def main():
