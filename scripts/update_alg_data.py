@@ -83,19 +83,28 @@ def actualizar_historico(df_actual):
     
     if os.path.exists(archivo_historico):
         print("Cargando histórico existente...")
-        # Si el archivo existe pero está vacío o corrupto, tratar como primera ejecución
+        # Si el archivo existe pero está vacío o corrupto, tratar como primera ejecución (sin recursión)
         try:
             df_historico = pd.read_csv(archivo_historico)
             if df_historico.empty:
                 raise pd.errors.EmptyDataError
-            
             # Asegurar que el histórico tenga la clave
             if '_key' not in df_historico.columns:
                 df_historico['_key'] = df_historico.apply(crear_key_producto, axis=1)
         except (pd.errors.EmptyDataError, pd.errors.ParserError):
             print("Archivo histórico vacío o corrupto, iniciando desde cero...")
             os.remove(archivo_historico)
-            return actualizar_historico(df_actual)  # Recursión para tratar como primera ejecución
+            # Crear histórico inicial sin recursión
+            df_historico = df_actual.copy()
+            df_historico['fecha_alta'] = fecha_hoy
+            df_historico['fecha_baja'] = None
+            # No registrar altas en la primera ejecución (punto de partida)
+            # Remover columna auxiliar antes de guardar
+            df_historico = df_historico.drop('_key', axis=1)
+            df_actual = df_actual.drop('_key', axis=1)
+            df_historico.to_csv(archivo_historico, index=False)
+            print(f"✅ Histórico actualizado: {archivo_historico}")
+            return df_historico
         
         # Encontrar productos nuevos y eliminados
         keys_actual = set(df_actual['_key'])
@@ -132,23 +141,24 @@ def actualizar_historico(df_actual):
             df_historico = pd.concat([df_historico, productos_nuevos_df], ignore_index=True)
         
         # Actualizar información de productos existentes (mantener fechas originales)
-        for key in keys_actual & keys_historico:
-            mask_historico = df_historico['_key'] == key
-            mask_actual = df_actual['_key'] == key
+        productos_existentes = list(keys_actual & keys_historico)
+        if productos_existentes:
+            print("Actualizando información de productos existentes...")
+            # Filtrar registros existentes
+            df_historico_existentes = df_historico[df_historico['_key'].isin(productos_existentes)]
+            df_actual_existentes = df_actual[df_actual['_key'].isin(productos_existentes)]
             
-            if mask_historico.any() and mask_actual.any():
-                # Mantener fecha_alta y fecha_baja del histórico
-                fecha_alta_original = df_historico.loc[mask_historico, 'fecha_alta'].iloc[0]
-                fecha_baja_original = df_historico.loc[mask_historico, 'fecha_baja'].iloc[0]
-                
-                # Actualizar con datos actuales pero mantener fechas
-                fila_actual = df_actual[mask_actual].iloc[0].copy()
-                fila_actual['fecha_alta'] = fecha_alta_original
-                fila_actual['fecha_baja'] = fecha_baja_original
-                
-                # Reemplazar en histórico
-                df_historico = df_historico[~mask_historico]
-                df_historico = pd.concat([df_historico, fila_actual.to_frame().T], ignore_index=True)
+            # Crear un mapping de fechas originales
+            fechas_mapping = df_historico_existentes.set_index('_key')[['fecha_alta', 'fecha_baja']]
+            
+            # Actualizar datos manteniendo fechas originales
+            df_actual_existentes = df_actual_existentes.set_index('_key')
+            df_actual_existentes[['fecha_alta', 'fecha_baja']] = fechas_mapping
+            df_actual_existentes = df_actual_existentes.reset_index()
+            
+            # Reemplazar en histórico
+            df_historico = df_historico[~df_historico['_key'].isin(productos_existentes)]
+            df_historico = pd.concat([df_historico, df_actual_existentes], ignore_index=True)
         
     else:
         print("Creando histórico inicial...")
@@ -304,13 +314,24 @@ def main():
         # 5. Actualizar estadísticas en README
         actualizar_estadisticas_readme(df_historico)
         print("✅ README actualizado con estadísticas")
-        
+
+        # 6. Generar estadisticas.json con tablas pivot de productos activos
+        df_activos = df_historico[df_historico['fecha_baja'].isna()]
+        estadisticas = {
+            "por_marca": df_activos['marca'].value_counts().to_dict() if 'marca' in df_activos.columns else {},
+            "por_tipo_producto": df_activos['TipoProducto'].value_counts().to_dict() if 'TipoProducto' in df_activos.columns else {},
+            "por_denominacion_venta": df_activos['denominacionventa'].value_counts().to_dict() if 'denominacionventa' in df_activos.columns else {}
+        }
+        import json
+        with open('data/estadisticas.json', 'w') as f:
+            json.dump(estadisticas, f, ensure_ascii=False, indent=2)
+        print("✅ Archivo data/estadisticas.json generado")
+
         print("✅ Proceso completado exitosamente")
         
         # Mostrar estadísticas
         productos_activos = len(df_historico[df_historico['fecha_baja'].isna()])
         productos_dados_baja = len(df_historico[df_historico['fecha_baja'].notna()])
-        
         print(f"📊 Estadísticas:")
         print(f"   - Productos activos: {productos_activos}")
         print(f"   - Productos dados de baja: {productos_dados_baja}")
