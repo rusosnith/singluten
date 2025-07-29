@@ -173,6 +173,10 @@
   <section class="timeline">
     <h2 style="margin-top:0.2em;">Altas recientes de productos sin gluten</h2>
     <div id="timeline-table"></div>
+    <div style="margin:2.5em 0 0.5em 0;text-align:center;">
+      <h2 style="margin-bottom:0.7em;">Todos los productos activos agrupados por marca y tipo</h2>
+      <div id="circle-pack" style="display:flex;justify-content:center;"></div>
+    </div>
   </section>
   <footer style="text-align:center;margin:2.5rem 0 1.2rem 0;color:#888;font-size:0.98em;">
     Datos públicos de <a href="https://listadoalg.anmat.gob.ar/Home" target="_blank">ANMAT</a> &mdash; Código y scraping: <a href="https://github.com/rusosnith/singluten" target="_blank">github.com/rusosnith/singluten</a>
@@ -194,6 +198,79 @@
         .append('div')
         .attr('class', 'stat')
         .html(d => `<div class="value">${d.value}</div><div>${d.label}</div>`);
+    });
+
+    // Cargar todos los productos activos y renderizar circle pack
+    d3.dsv(",", 'data/alg-listado.csv', d3.autoType).then(function(data) {
+      // Filtrar activos
+      const activos = data.filter(d => d.Estado === 'VIGENTE' && d.activo === 'Sí');
+      // Agrupar en jerarquía: Marca > TipoProducto > Producto
+      const marcas = d3.groups(activos, d => d.marca, d => d.TipoProducto);
+      // Convertir a estructura jerárquica para d3.pack
+      const root = {
+        name: "Productos",
+        children: marcas.map(([marca, tipos]) => ({
+          name: marca || "(Sin marca)",
+          children: tipos.map(([tipo, productos]) => ({
+            name: tipo || "(Sin tipo)",
+            children: productos.map(p => ({
+              name: p.denominacionventa || p.nombreFantasia || p.rnpa || "(Producto)",
+              value: 1
+            }))
+          }))
+        }))
+      };
+
+      // Cargar el componente pack de Observable
+      function Pack(data, {width=600, height=600, label, value, color} = {}) {
+        // Basado en https://observablehq.com/@d3/pack-component
+        const root = d3.hierarchy(data)
+          .sum(d => value ? value(d) : d.value)
+          .sort((a, b) => b.value - a.value);
+        const pack = d3.pack()
+          .size([width, height])
+          .padding(3);
+        pack(root);
+        const svg = d3.create("svg")
+          .attr("viewBox", [0, 0, width, height])
+          .attr("width", width)
+          .attr("height", height)
+          .attr("style", "max-width:100%;height:auto;background:#fff5f5;border-radius:12px;");
+        const node = svg.selectAll("g")
+          .data(root.descendants())
+          .join("g")
+            .attr("transform", d => `translate(${d.x},${d.y})`);
+        node.append("circle")
+          .attr("r", d => d.r)
+          .attr("fill", d => d.children ? (d.depth === 1 ? '#c62828' : d.depth === 2 ? '#ef5350' : '#fff0f0') : '#fff')
+          .attr("stroke", d => d.depth === 1 ? '#b71c1c' : d.depth === 2 ? '#e57373' : '#ffcdd2')
+          .attr("stroke-width", d => d.children ? 2 : 1);
+        node.filter(d => d.depth === 1)
+          .append("text")
+          .attr("text-anchor", "middle")
+          .attr("dy", "0.35em")
+          .attr("fill", "#fff")
+          .attr("font-size", d => Math.max(12, d.r/3))
+          .attr("font-weight", 700)
+          .text(d => d.data.name);
+        node.filter(d => d.depth === 2 && d.r > 25)
+          .append("text")
+          .attr("text-anchor", "middle")
+          .attr("dy", "0.35em")
+          .attr("fill", "#c62828")
+          .attr("font-size", d => Math.max(10, d.r/4))
+          .attr("font-weight", 600)
+          .text(d => d.data.name);
+        node.append("title")
+          .text(d => d.ancestors().map(d => d.data.name).reverse().join(" → ") + (d.children ? `\n${d.value} productos` : ""));
+        return svg.node();
+      }
+
+      // Renderizar
+      const width = Math.min(600, window.innerWidth-40);
+      document.getElementById('circle-pack').appendChild(
+        Pack(root, {width, height: width, value: d=>d.value})
+      );
     });
 
     // Cargar y mostrar altas recientes
