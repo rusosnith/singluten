@@ -204,28 +204,21 @@
     d3.dsv(",", 'data/alg-listado.csv', d3.autoType).then(function(data) {
       // Filtrar activos
       const activos = data.filter(d => d.Estado === 'VIGENTE' && d.activo === 'Sí');
-      // Agrupar en jerarquía: Marca > TipoProducto > Producto
-      const marcas = d3.groups(activos, d => d.marca, d => d.TipoProducto);
-      // Convertir a estructura jerárquica para d3.pack
+      // Agrupar por marca
+      const marcas = d3.groups(activos, d => d.marca || "(Sin marca)");
+      // Estructura jerárquica: solo marcas
       const root = {
         name: "Productos",
-        children: marcas.map(([marca, tipos]) => ({
-          name: marca || "(Sin marca)",
-          children: tipos.map(([tipo, productos]) => ({
-            name: tipo || "(Sin tipo)",
-            children: productos.map(p => ({
-              name: p.denominacionventa || p.nombreFantasia || p.rnpa || "(Producto)",
-              value: 1
-            }))
-          }))
+        children: marcas.map(([marca, productos]) => ({
+          name: marca,
+          value: productos.length
         }))
       };
 
-      // Cargar el componente pack de Observable
-      function Pack(data, {width=600, height=600, label, value, color} = {}) {
-        // Basado en https://observablehq.com/@d3/pack-component
+      // Componente pack simplificado
+      function PackSimple(data, {width=600, height=600, minLabelR=40} = {}) {
         const root = d3.hierarchy(data)
-          .sum(d => value ? value(d) : d.value)
+          .sum(d => d.value)
           .sort((a, b) => b.value - a.value);
         const pack = d3.pack()
           .size([width, height])
@@ -242,34 +235,35 @@
             .attr("transform", d => `translate(${d.x},${d.y})`);
         node.append("circle")
           .attr("r", d => d.r)
-          .attr("fill", d => d.children ? (d.depth === 1 ? '#c62828' : d.depth === 2 ? '#ef5350' : '#fff0f0') : '#fff')
-          .attr("stroke", d => d.depth === 1 ? '#b71c1c' : d.depth === 2 ? '#e57373' : '#ffcdd2')
-          .attr("stroke-width", d => d.children ? 2 : 1);
-        node.filter(d => d.depth === 1)
+          .attr("fill", d => d.depth === 1 ? '#c62828' : '#fff0f0')
+          .attr("stroke", d => d.depth === 1 ? '#b71c1c' : '#ffcdd2')
+          .attr("stroke-width", d => d.depth === 1 ? 2 : 1);
+        // Solo marcas grandes
+        node.filter(d => d.depth === 1 && d.r > minLabelR)
           .append("text")
           .attr("text-anchor", "middle")
-          .attr("dy", "0.35em")
+          .attr("dy", "-0.2em")
           .attr("fill", "#fff")
-          .attr("font-size", d => Math.max(12, d.r/3))
+          .attr("font-size", d => Math.max(12, d.r/4))
           .attr("font-weight", 700)
           .text(d => d.data.name);
-        node.filter(d => d.depth === 2 && d.r > 25)
+        node.filter(d => d.depth === 1 && d.r > minLabelR)
           .append("text")
           .attr("text-anchor", "middle")
-          .attr("dy", "0.35em")
-          .attr("fill", "#c62828")
-          .attr("font-size", d => Math.max(10, d.r/4))
-          .attr("font-weight", 600)
-          .text(d => d.data.name);
+          .attr("dy", "1.1em")
+          .attr("fill", "#fff")
+          .attr("font-size", d => Math.max(11, d.r/6))
+          .attr("font-weight", 500)
+          .text(d => d.data.value + ' prod.');
         node.append("title")
-          .text(d => d.ancestors().map(d => d.data.name).reverse().join(" → ") + (d.children ? `\n${d.value} productos` : ""));
+          .text(d => d.data.name + (d.data.value ? `\n${d.data.value} productos` : ""));
         return svg.node();
       }
 
       // Renderizar
       const width = Math.min(600, window.innerWidth-40);
       document.getElementById('circle-pack').appendChild(
-        Pack(root, {width, height: width, value: d=>d.value})
+        PackSimple(root, {width, height: width, minLabelR: 40})
       );
     });
 
