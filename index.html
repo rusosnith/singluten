@@ -9,23 +9,43 @@
   <style>
     body { background: #f8f9fa; }
     header {
-      background: #005fa3;
+      background: #c62828;
       color: #fff;
       padding: 1.2rem 0 0.7rem 0;
       text-align: center;
     }
     h1 {
       margin: 0 0 0.3rem 0;
-      font-size: 1.5rem;
-      font-weight: 700;
+      font-size: 1.7rem;
+      font-weight: 800;
       letter-spacing: -1px;
+      color: #fff;
+      text-shadow: 0 2px 8px #0008, 0 1px 0 #b71c1c;
+      background: rgba(0,0,0,0.08);
+      border-radius: 10px;
+      padding: 0.3em 1.5em;
+      display: inline-block;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 2px 12px #0002;
+    }
+    @media (min-width: 700px) {
+      .timeline {
+        margin-left: 2.5vw;
+        margin-right: 2.5vw;
+        max-width: 95vw;
+      }
+      h1 {
+        margin-left: 2vw;
+        margin-right: 2vw;
+      }
     }
     .intro {
       margin: 0.7rem auto 1.2rem auto;
       font-size: 1rem;
       line-height: 1.6;
-      color: #eaf6ff;
-      background: rgba(0,0,0,0.10);
+      color: #fff0f0;
+      background: rgba(0,0,0,0.13);
       border-radius: 8px;
       padding: 0.7rem 1rem 0.8rem 1rem;
       box-shadow: 0 2px 8px #0002;
@@ -39,7 +59,7 @@
       margin: 1.2rem 0 0.7rem 0;
     }
     .stat {
-      background: #f3f7fa;
+      background: #fff5f5;
       border-radius: 10px;
       box-shadow: 0 1px 6px #0001;
       padding: 0.7rem 1.1rem;
@@ -48,16 +68,16 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      border: 1px solid #dbe6ef;
+      border: 1px solid #ffcdd2;
     }
     .stat .value {
       font-size: 1.3rem;
       font-weight: bold;
-      color: #005fa3;
+      color: #c62828;
       margin-bottom: 0.1em;
     }
     .stat div:not(.value) {
-      color: #005fa3;
+      color: #c62828;
       font-size: 0.98em;
       font-weight: 500;
       margin-top: 0.1em;
@@ -74,14 +94,62 @@
       text-align: center;
       margin-top: 0.2em;
       font-size: 1.1rem;
-      font-weight: 600;
-      color: #005fa3;
+      font-weight: 700;
+      color: #c62828;
+      letter-spacing: 0.5px;
+      text-shadow: 0 1px 0 #fff2, 0 2px 8px #0001;
     }
     table { width: 100%; margin-top: 0.7rem; font-size: 0.98em; }
     th, td { text-align: left; }
-    th { background: #f3f7fa; color: #005fa3; font-weight: 600; }
-    tr.alta { background: #e6ffe6; }
-    tr.baja { background: #ffeaea; }
+    th { background: #fff0f0; color: #c62828; font-weight: 700; }
+    tr.alta { background: #ffeaea; }
+    tr.baja { background: #fff5f5; }
+    .semana-header {
+      background: #c62828;
+      color: #fff;
+      border-radius: 7px;
+      padding: 0.5em 1em;
+      margin: 1.5em 0 0.7em 0;
+      font-weight: 700;
+      font-size: 1.08em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px #0002;
+      transition: background 0.2s;
+    }
+    .semana-header:hover {
+      background: #b71c1c;
+    }
+    .semana-count {
+      background: #fff0f0;
+      color: #c62828;
+      border-radius: 1em;
+      padding: 0.1em 0.7em;
+      font-size: 0.98em;
+      font-weight: 600;
+      margin-left: 1em;
+    }
+    .semana-arrow {
+      margin-left: 0.7em;
+      font-size: 1.1em;
+      transition: transform 0.2s;
+    }
+    .semana-collapsed .semana-arrow {
+      transform: rotate(-90deg);
+    }
+    .semana-table {
+      margin-bottom: 1.2em;
+      transition: max-height 0.3s, opacity 0.3s;
+      overflow: hidden;
+    }
+    .semana-collapsed .semana-table {
+      max-height: 0;
+      opacity: 0;
+      pointer-events: none;
+      padding: 0;
+    }
     @media (max-width: 700px) {
       .stats { flex-direction: column; gap: 0.7rem; }
       .stat { min-width: unset; }
@@ -138,7 +206,6 @@
       const recientes = altas.slice(0, 30);
       // Agrupar por semana (lunes a domingo)
       const fmtSemana = d3.timeFormat('%d/%m/%Y');
-      // Agrupa por la fecha del lunes de esa semana
       function getMonday(d) {
         d = new Date(d);
         const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); // lunes
@@ -152,10 +219,16 @@
         if (!agrupado[semana]) agrupado[semana] = [];
         agrupado[semana].push(row);
       });
-      // Renderizar
+      // Renderizar con drawer/collapsable
       let html = '';
-      Object.keys(agrupado).sort((a,b)=>new Date(b.split('/').reverse().join('-'))-new Date(a.split('/').reverse().join('-'))).forEach(semana => {
-        html += `<div style="margin:1.5em 0 0.7em 0;"><b>Semana del ${semana}</b></div>`;
+      const semanas = Object.keys(agrupado).sort((a,b)=>new Date(b.split('/').reverse().join('-'))-new Date(a.split('/').reverse().join('-')));
+      semanas.forEach((semana, idx) => {
+        const count = agrupado[semana].length;
+        html += `<div class="semana-drawer${idx===0?'':' semana-collapsed'}" id="semana-${idx}">`;
+        html += `<div class="semana-header" onclick="toggleSemana(${idx})">`;
+        html += `<span>Semana del ${semana} <span class='semana-count'>${count} producto${count!==1?'s':''}</span></span>`;
+        html += `<span class="semana-arrow">&#9660;</span></div>`;
+        html += `<div class="semana-table" style="${idx===0?'':'max-height:0;opacity:0;pointer-events:none;'}">`;
         html += '<table><thead><tr><th>Marca</th><th>Denominación</th><th>Tipo Producto</th></tr></thead><tbody>';
         agrupado[semana].forEach(row => {
           html += `<tr class="${row.tipo_cambio}">` +
@@ -164,9 +237,26 @@
             `<td>${row['TipoProducto'] ?? ''}</td>` +
             '</tr>';
         });
-        html += '</tbody></table>';
+        html += '</tbody></table></div></div>';
       });
       d3.select('#timeline-table').html(html);
+      // Drawer/collapsable interactividad
+      window.toggleSemana = function(idx) {
+        const drawer = document.getElementById('semana-'+idx);
+        if (!drawer) return;
+        const collapsed = drawer.classList.contains('semana-collapsed');
+        if (collapsed) {
+          drawer.classList.remove('semana-collapsed');
+          drawer.querySelector('.semana-table').style.maxHeight = '';
+          drawer.querySelector('.semana-table').style.opacity = '1';
+          drawer.querySelector('.semana-table').style.pointerEvents = '';
+        } else {
+          drawer.classList.add('semana-collapsed');
+          drawer.querySelector('.semana-table').style.maxHeight = '0';
+          drawer.querySelector('.semana-table').style.opacity = '0';
+          drawer.querySelector('.semana-table').style.pointerEvents = 'none';
+        }
+      }
     });
   </script>
 </body>
