@@ -11,72 +11,84 @@
     header {
       background: #005fa3;
       color: #fff;
-      padding: 2.2rem 0 1.2rem 0;
+      padding: 1.2rem 0 0.7rem 0;
       text-align: center;
     }
     h1 {
-      margin: 0 0 0.5rem 0;
-      font-size: 2.2rem;
+      margin: 0 0 0.3rem 0;
+      font-size: 1.5rem;
       font-weight: 700;
       letter-spacing: -1px;
     }
     .intro {
-      margin: 1.2rem auto 2.2rem auto;
-      font-size: 1.13rem;
-      line-height: 1.7;
+      margin: 0.7rem auto 1.2rem auto;
+      font-size: 1rem;
+      line-height: 1.6;
       color: #eaf6ff;
       background: rgba(0,0,0,0.10);
       border-radius: 8px;
-      padding: 1rem 1.2rem 1.1rem 1.2rem;
+      padding: 0.7rem 1rem 0.8rem 1rem;
       box-shadow: 0 2px 8px #0002;
       max-width: 700px;
     }
     .stats {
       display: flex;
       flex-wrap: wrap;
-      gap: 1.5rem;
+      gap: 1rem;
       justify-content: center;
-      margin: 2.2rem 0 1.2rem 0;
+      margin: 1.2rem 0 0.7rem 0;
     }
     .stat {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 12px #0001;
-      padding: 1.2rem 2.2rem;
-      min-width: 180px;
+      background: #f3f7fa;
+      border-radius: 10px;
+      box-shadow: 0 1px 6px #0001;
+      padding: 0.7rem 1.1rem;
+      min-width: 120px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
-      border: 1.5px solid #e3eaf2;
+      border: 1px solid #dbe6ef;
     }
     .stat .value {
-      font-size: 2.2rem;
+      font-size: 1.3rem;
       font-weight: bold;
       color: #005fa3;
-      margin-bottom: 0.2em;
+      margin-bottom: 0.1em;
+    }
+    .stat div:not(.value) {
+      color: #005fa3;
+      font-size: 0.98em;
+      font-weight: 500;
+      margin-top: 0.1em;
     }
     .timeline {
-      margin: 2.5rem auto;
-      max-width: 950px;
+      margin: 1.5rem auto;
+      max-width: 98vw;
       background: #fff;
       border-radius: 10px;
       box-shadow: 0 2px 12px #0001;
-      padding: 2rem 1.2rem 1.5rem 1.2rem;
+      padding: 1.2rem 0.5rem 1rem 0.5rem;
     }
     h2 {
       text-align: center;
       margin-top: 0.2em;
-      font-size: 1.5rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #005fa3;
     }
-    table { width: 100%; margin-top: 1.2rem; }
+    table { width: 100%; margin-top: 0.7rem; font-size: 0.98em; }
     th, td { text-align: left; }
+    th { background: #f3f7fa; color: #005fa3; font-weight: 600; }
     tr.alta { background: #e6ffe6; }
     tr.baja { background: #ffeaea; }
     @media (max-width: 700px) {
-      .stats { flex-direction: column; gap: 1rem; }
+      .stats { flex-direction: column; gap: 0.7rem; }
       .stat { min-width: unset; }
-      .timeline { padding: 0.5rem; }
+      .timeline { padding: 0.2rem; }
+      h1 { font-size: 1.1rem; }
+      .intro { font-size: 0.97rem; }
+      table { font-size: 0.93em; }
     }
   </style>
 </head>
@@ -124,15 +136,58 @@
       altas.sort((a, b) => new Date(b.fecha_cambio) - new Date(a.fecha_cambio));
       // Mostrar solo las 30 más recientes
       const recientes = altas.slice(0, 30);
-      // Columnas a mostrar
-      const columnas = ['fecha_cambio', 'id', 'marca', 'denominacionventa', 'TipoProducto'];
-      const headers = ['Fecha', 'ID', 'Marca', 'Denominación', 'Tipo Producto'];
-      let table = '<table><thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
-      recientes.forEach(row => {
-        table += `<tr class="${row.tipo_cambio}">` + columnas.map(col => `<td>${row[col] ?? ''}</td>`).join('') + '</tr>';
-      });
-      table += '</tbody></table>';
-      d3.select('#timeline-table').html(table);
+      // Columnas a mostrar (sin ID)
+      const columnas = ['fecha_cambio', 'marca', 'denominacionventa', 'TipoProducto'];
+      const headers = ['Fecha', 'Marca', 'Denominación', 'Tipo Producto'];
+      // Formateador de fecha amigable
+      const fmtFecha = d3.timeFormat('%d/%m/%Y');
+      // Estado de ordenamiento
+      let sortCol = 0;
+      let sortAsc = false;
+
+      function renderTable(rows) {
+        let table = '<table><thead><tr>' + headers.map((h, i) => `<th style="cursor:pointer" data-col="${i}">${h} <span style="font-size:0.8em;">&#x25B2;&#x25BC;</span></th>`).join('') + '</tr></thead><tbody>';
+        rows.forEach(row => {
+          let fecha = row['fecha_cambio'] ? fmtFecha(new Date(row['fecha_cambio'])) : '';
+          table += `<tr class="${row.tipo_cambio}">` +
+            `<td>${fecha}</td>` +
+            `<td>${row['marca'] ?? ''}</td>` +
+            `<td>${row['denominacionventa'] ?? ''}</td>` +
+            `<td>${row['TipoProducto'] ?? ''}</td>` +
+            '</tr>';
+        });
+        table += '</tbody></table>';
+        d3.select('#timeline-table').html(table);
+
+        // Agregar eventos de click para ordenar
+        d3.selectAll('#timeline-table th').on('click', function() {
+          const col = +d3.select(this).attr('data-col');
+          if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+          let sorted = recientes.slice();
+          sorted.sort((a, b) => {
+            let va, vb;
+            if (col === 0) { // fecha
+              va = new Date(a['fecha_cambio']);
+              vb = new Date(b['fecha_cambio']);
+            } else if (col === 1) {
+              va = (a['marca'] || '').toLowerCase();
+              vb = (b['marca'] || '').toLowerCase();
+            } else if (col === 2) {
+              va = (a['denominacionventa'] || '').toLowerCase();
+              vb = (b['denominacionventa'] || '').toLowerCase();
+            } else if (col === 3) {
+              va = (a['TipoProducto'] || '').toLowerCase();
+              vb = (b['TipoProducto'] || '').toLowerCase();
+            }
+            if (va < vb) return sortAsc ? -1 : 1;
+            if (va > vb) return sortAsc ? 1 : -1;
+            return 0;
+          });
+          renderTable(sorted);
+        });
+      }
+
+      renderTable(recientes);
     });
   </script>
 </body>
