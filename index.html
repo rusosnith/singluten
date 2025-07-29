@@ -173,10 +173,7 @@
   <section class="timeline">
     <h2 style="margin-top:0.2em;">Altas recientes de productos sin gluten</h2>
     <div id="timeline-table"></div>
-    <div style="margin:2.5em 0 0.5em 0;text-align:center;">
-      <h2 style="margin-bottom:0.7em;">Todos los productos activos agrupados por marca y tipo</h2>
-      <div id="circle-pack" style="display:flex;justify-content:center;"></div>
-    </div>
+    <!-- Circle pack eliminado -->
   </section>
   <footer style="text-align:center;margin:2.5rem 0 1.2rem 0;color:#888;font-size:0.98em;">
     Datos públicos de <a href="https://listadoalg.anmat.gob.ar/Home" target="_blank">ANMAT</a> &mdash; Código y scraping: <a href="https://github.com/rusosnith/singluten" target="_blank">github.com/rusosnith/singluten</a>
@@ -200,72 +197,7 @@
         .html(d => `<div class="value">${d.value}</div><div>${d.label}</div>`);
     });
 
-    // Cargar todos los productos activos y renderizar circle pack
-    d3.dsv(",", 'data/alg-listado.csv', d3.autoType).then(function(data) {
-      // Filtrar activos
-      const activos = data.filter(d => d.Estado === 'VIGENTE' && d.activo === 'Sí');
-      // Agrupar por marca
-      const marcas = d3.groups(activos, d => d.marca || "(Sin marca)");
-      // Estructura jerárquica: solo marcas
-      const root = {
-        name: "Productos",
-        children: marcas.map(([marca, productos]) => ({
-          name: marca,
-          value: productos.length
-        }))
-      };
-
-      // Componente pack simplificado
-      function PackSimple(data, {width=600, height=600, minLabelR=40} = {}) {
-        const root = d3.hierarchy(data)
-          .sum(d => d.value)
-          .sort((a, b) => b.value - a.value);
-        const pack = d3.pack()
-          .size([width, height])
-          .padding(3);
-        pack(root);
-        const svg = d3.create("svg")
-          .attr("viewBox", [0, 0, width, height])
-          .attr("width", width)
-          .attr("height", height)
-          .attr("style", "max-width:100%;height:auto;background:#fff5f5;border-radius:12px;");
-        const node = svg.selectAll("g")
-          .data(root.descendants())
-          .join("g")
-            .attr("transform", d => `translate(${d.x},${d.y})`);
-        node.append("circle")
-          .attr("r", d => d.r)
-          .attr("fill", d => d.depth === 1 ? '#c62828' : '#fff0f0')
-          .attr("stroke", d => d.depth === 1 ? '#b71c1c' : '#ffcdd2')
-          .attr("stroke-width", d => d.depth === 1 ? 2 : 1);
-        // Solo marcas grandes
-        node.filter(d => d.depth === 1 && d.r > minLabelR)
-          .append("text")
-          .attr("text-anchor", "middle")
-          .attr("dy", "-0.2em")
-          .attr("fill", "#fff")
-          .attr("font-size", d => Math.max(12, d.r/4))
-          .attr("font-weight", 700)
-          .text(d => d.data.name);
-        node.filter(d => d.depth === 1 && d.r > minLabelR)
-          .append("text")
-          .attr("text-anchor", "middle")
-          .attr("dy", "1.1em")
-          .attr("fill", "#fff")
-          .attr("font-size", d => Math.max(11, d.r/6))
-          .attr("font-weight", 500)
-          .text(d => d.data.value + ' prod.');
-        node.append("title")
-          .text(d => d.data.name + (d.data.value ? `\n${d.data.value} productos` : ""));
-        return svg.node();
-      }
-
-      // Renderizar
-      const width = Math.min(600, window.innerWidth-40);
-      document.getElementById('circle-pack').appendChild(
-        PackSimple(root, {width, height: width, minLabelR: 40})
-      );
-    });
+    // (Circle pack eliminado)
 
     // Cargar y mostrar altas recientes
     d3.dsv(",", 'data/altas_bajas.csv', d3.autoType).then(function(data) {
