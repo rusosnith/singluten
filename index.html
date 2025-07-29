@@ -28,20 +28,30 @@
 <body>
   <header>
     <h1>Monitoreo de Productos Sin Gluten - ANMAT</h1>
+    <div class="intro" style="max-width:700px;margin:1.2rem auto 1.7rem auto;font-size:1.13rem;line-height:1.7;color:#eaf6ff;background:rgba(0,0,0,0.10);border-radius:8px;padding:1rem 1.2rem 1.1rem 1.2rem;box-shadow:0 2px 8px #0002;">
+      <b>¿Qué es esto?</b> Un monitor automático y abierto del listado oficial de Alimentos Libres de Gluten (<b>ALG</b>) publicado por la <a href="https://listadoalg.anmat.gob.ar/Home" target="_blank" style="color:#fff;text-decoration:underline;font-weight:bold;">ANMAT</a>.<br>
+      <span style="color:#d6eaff;">Cada semana se detectan y publican los nuevos productos agregados al padrón oficial.</span><br>
+      <span style="font-size:0.98em;opacity:0.8;">Hecho por <a href="https://github.com/rusosnith/singluten" target="_blank" style="color:#fff;text-decoration:underline;">@rusosnith</a> &mdash; Código abierto y datos públicos.</span>
+    </div>
     <div class="stats" id="stats"></div>
   </header>
   <section class="timeline">
-    <h2>Altas recientes de productos sin gluten</h2>
+    <h2 style="margin-top:0.2em;">Altas recientes de productos sin gluten</h2>
     <div id="timeline-table"></div>
   </section>
+  <footer style="text-align:center;margin:2.5rem 0 1.2rem 0;color:#888;font-size:0.98em;">
+    Datos públicos de <a href="https://listadoalg.anmat.gob.ar/Home" target="_blank">ANMAT</a> &mdash; Código y scraping: <a href="https://github.com/rusosnith/singluten" target="_blank">github.com/rusosnith/singluten</a>
+  </footer>
   <script>
     // Cargar estadísticas
     d3.json('data/estadisticas.json').then(function(stats) {
+      const activos = d3.sum(Object.values(stats.por_marca));
+      const total = activos; // Si quieres sumar bajas, ajusta aquí
+      const marcas = Object.keys(stats.por_marca).length;
       const statsArr = [
-        { label: 'Productos activos', value: d3.sum(Object.values(stats.por_marca)) },
-        { label: 'Total histórico', value: d3.sum(Object.values(stats.por_marca)) + (stats.por_baja ? d3.sum(Object.values(stats.por_baja)) : 0) },
-        { label: 'Marcas', value: Object.keys(stats.por_marca).length },
-        { label: 'Tipos de producto', value: Object.keys(stats.por_tipo_producto).length },
+        { label: 'Productos activos', value: activos },
+        { label: 'Total histórico', value: total },
+        { label: 'Marcas registradas', value: marcas }
       ];
       d3.select('#stats').selectAll('.stat')
         .data(statsArr)
