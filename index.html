@@ -136,58 +136,37 @@
       altas.sort((a, b) => new Date(b.fecha_cambio) - new Date(a.fecha_cambio));
       // Mostrar solo las 30 más recientes
       const recientes = altas.slice(0, 30);
-      // Columnas a mostrar (sin ID)
-      const columnas = ['fecha_cambio', 'marca', 'denominacionventa', 'TipoProducto'];
-      const headers = ['Fecha', 'Marca', 'Denominación', 'Tipo Producto'];
-      // Formateador de fecha amigable
-      const fmtFecha = d3.timeFormat('%d/%m/%Y');
-      // Estado de ordenamiento
-      let sortCol = 0;
-      let sortAsc = false;
-
-      function renderTable(rows) {
-        let table = '<table><thead><tr>' + headers.map((h, i) => `<th style="cursor:pointer" data-col="${i}">${h} <span style="font-size:0.8em;">&#x25B2;&#x25BC;</span></th>`).join('') + '</tr></thead><tbody>';
-        rows.forEach(row => {
-          let fecha = row['fecha_cambio'] ? fmtFecha(new Date(row['fecha_cambio'])) : '';
-          table += `<tr class="${row.tipo_cambio}">` +
-            `<td>${fecha}</td>` +
+      // Agrupar por semana (lunes a domingo)
+      const fmtSemana = d3.timeFormat('%d/%m/%Y');
+      // Agrupa por la fecha del lunes de esa semana
+      function getMonday(d) {
+        d = new Date(d);
+        const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1); // lunes
+        return new Date(d.setDate(diff));
+      }
+      // Agrupar productos por semana
+      const agrupado = {};
+      recientes.forEach(row => {
+        if (!row['fecha_cambio']) return;
+        const semana = fmtSemana(getMonday(row['fecha_cambio']));
+        if (!agrupado[semana]) agrupado[semana] = [];
+        agrupado[semana].push(row);
+      });
+      // Renderizar
+      let html = '';
+      Object.keys(agrupado).sort((a,b)=>new Date(b.split('/').reverse().join('-'))-new Date(a.split('/').reverse().join('-'))).forEach(semana => {
+        html += `<div style="margin:1.5em 0 0.7em 0;"><b>Semana del ${semana}</b></div>`;
+        html += '<table><thead><tr><th>Marca</th><th>Denominación</th><th>Tipo Producto</th></tr></thead><tbody>';
+        agrupado[semana].forEach(row => {
+          html += `<tr class="${row.tipo_cambio}">` +
             `<td>${row['marca'] ?? ''}</td>` +
             `<td>${row['denominacionventa'] ?? ''}</td>` +
             `<td>${row['TipoProducto'] ?? ''}</td>` +
             '</tr>';
         });
-        table += '</tbody></table>';
-        d3.select('#timeline-table').html(table);
-
-        // Agregar eventos de click para ordenar
-        d3.selectAll('#timeline-table th').on('click', function() {
-          const col = +d3.select(this).attr('data-col');
-          if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
-          let sorted = recientes.slice();
-          sorted.sort((a, b) => {
-            let va, vb;
-            if (col === 0) { // fecha
-              va = new Date(a['fecha_cambio']);
-              vb = new Date(b['fecha_cambio']);
-            } else if (col === 1) {
-              va = (a['marca'] || '').toLowerCase();
-              vb = (b['marca'] || '').toLowerCase();
-            } else if (col === 2) {
-              va = (a['denominacionventa'] || '').toLowerCase();
-              vb = (b['denominacionventa'] || '').toLowerCase();
-            } else if (col === 3) {
-              va = (a['TipoProducto'] || '').toLowerCase();
-              vb = (b['TipoProducto'] || '').toLowerCase();
-            }
-            if (va < vb) return sortAsc ? -1 : 1;
-            if (va > vb) return sortAsc ? 1 : -1;
-            return 0;
-          });
-          renderTable(sorted);
-        });
-      }
-
-      renderTable(recientes);
+        html += '</tbody></table>';
+      });
+      d3.select('#timeline-table').html(html);
     });
   </script>
 </body>
