@@ -9,24 +9,6 @@ Este repositorio mantiene actualizado automáticamente el listado de Alimentos L
 - **`data/alg-historico.csv`**: Histórico completo con fechas de alta y baja
 - **`data/altas_bajas.csv`**: Registro acumulativo de todas las altas y bajas detectadas en cada ejecución
 
-
-## Estado actual
-
-_Esta sección se actualiza automáticamente en cada ejecución_
-
-| Métrica | Valor |
-|---------|-------|
-| 📅 Inicio del monitoreo | 2025-07-26 |
-| ✅ Productos activos | 23,057 |
-| ❌ Productos dados de baja | 0 |
-| 📊 Total histórico | 23,057 |
-
-### Últimas actualizaciones
-
-| Semana | Altas | Bajas |
-|--------|-------|-------|
-| 2025-07-26 | 0 | 0 |
-
 ## Funcionamiento
 
 - **Frecuencia**: Se actualiza automáticamente todos los lunes a las 9:00 AM UTC
@@ -39,24 +21,44 @@ _Esta sección se actualiza automáticamente en cada ejecución_
 
 ## Archivo de altas y bajas
 
-El archivo `altas_bajas.csv` contiene todas las altas y bajas detectadas en cada ejecución del script. Incluye todas las columnas originales del producto, más:
+El archivo `altas_bajas.csv` contiene todos los cambios detectados en cada ejecución del script. Incluye todas las columnas originales del producto, más:
 
-- **`tipo_cambio`**: "alta" o "baja"
-- **`fecha_cambio`**: Fecha en que se detectó el alta o baja
+- **`tipo_cambio`**: Puede ser:
+  - **`alta_nuevo`**: Producto que aparece por primera vez en el listado
+  - **`alta_reactivado`**: Producto que existía antes, fue dado de baja y vuelve a aparecer
+  - **`baja`**: Producto que desaparece del listado
+- **`fecha_cambio`**: Fecha en que se detectó el cambio
 
-Esto permite analizar fácilmente cuándo se detectó cada cambio en el listado.
+Esto permite analizar fácilmente cuándo y qué tipo de cambio ocurrió en el listado.
 
 ## Archivo histórico
 
 El archivo `alg-historico.csv` contiene:
 - **Todos los productos** que alguna vez estuvieron en el listado
-- **`fecha_alta`**: Cuándo apareció el producto por primera vez
+- **`fecha_alta`**: Cuándo apareció el producto por primera vez (o fue reactivado)
 - **`fecha_baja`**: Cuándo fue eliminado del listado (vacío si está activo)
 
-
-
-
 ---
+
+## Estado actual
+
+_Esta sección se actualiza automáticamente en cada ejecución_
+
+| Métrica | Valor |
+|---------|-------|
+| 📅 Inicio del monitoreo | 2025-07-26 |
+| ✅ Productos activos | 23,192 |
+| ❌ Productos dados de baja | 392 |
+| 📊 Total histórico | 23,584 |
+
+### Últimas actualizaciones
+
+| Semana | Altas (Nuevos/Reactivados) | Bajas |
+|--------|------------------------|-------|
+| 2025-08-24 | 198 (198/0) | 1 |
+| 2025-08-17 | 130 (130/0) | 0 |
+| 2025-08-10 | 194 (194/0) | 391 |
+| 2025-08-03 | 5 (5/0) | 0 |
 
 ## Consultas útiles
 

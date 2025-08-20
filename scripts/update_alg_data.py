@@ -112,8 +112,19 @@ def actualizar_historico(df_actual):
         
         productos_nuevos = keys_actual - keys_historico
         productos_eliminados = keys_historico - keys_actual
+        productos_reactivados = set()
+
+        # Verificar productos reactivados (dados de alta nuevamente)
+        if productos_nuevos:
+            for key in list(productos_nuevos):  # Usar list para poder modificar el set durante la iteración
+                historico_producto = df_historico[df_historico['_key'] == key]
+                if not historico_producto.empty and not historico_producto['fecha_baja'].isna().all():
+                    # Si el producto ya existía y estaba dado de baja, moverlo a reactivados
+                    productos_nuevos.remove(key)
+                    productos_reactivados.add(key)
 
         print(f"Productos nuevos: {len(productos_nuevos)}")
+        print(f"Productos reactivados: {len(productos_reactivados)}")
         print(f"Productos eliminados: {len(productos_eliminados)}")
 
         # Marcar productos eliminados con fecha de baja y registrar bajas
@@ -132,13 +143,28 @@ def actualizar_historico(df_actual):
             productos_nuevos_df = df_actual[df_actual['_key'].isin(productos_nuevos)].copy()
             productos_nuevos_df['fecha_alta'] = fecha_hoy
             productos_nuevos_df['fecha_baja'] = None
-            # Registrar altas
+            # Registrar altas nuevas
             if not productos_nuevos_df.empty:
-                productos_nuevos_df['tipo_cambio'] = 'alta'
+                productos_nuevos_df['tipo_cambio'] = 'alta_nuevo'
                 productos_nuevos_df['fecha_cambio'] = fecha_hoy
                 altas_corrida.append(productos_nuevos_df)
             # Combinar con histórico
             df_historico = pd.concat([df_historico, productos_nuevos_df], ignore_index=True)
+
+        # Procesar productos reactivados
+        if productos_reactivados:
+            productos_reactivados_df = df_actual[df_actual['_key'].isin(productos_reactivados)].copy()
+            productos_reactivados_df['fecha_alta'] = fecha_hoy
+            productos_reactivados_df['fecha_baja'] = None
+            # Registrar reactivaciones
+            if not productos_reactivados_df.empty:
+                productos_reactivados_df['tipo_cambio'] = 'alta_reactivado'
+                productos_reactivados_df['fecha_cambio'] = fecha_hoy
+                altas_corrida.append(productos_reactivados_df)
+            # Actualizar en histórico
+            for key in productos_reactivados:
+                df_historico.loc[df_historico['_key'] == key, 'fecha_alta'] = fecha_hoy
+                df_historico.loc[df_historico['_key'] == key, 'fecha_baja'] = None
         
         # Actualizar información de productos existentes (mantener fechas originales)
         productos_existentes = list(keys_actual & keys_historico)
@@ -236,10 +262,14 @@ def actualizar_estadisticas_readme(df_historico):
             # Agrupar por semana
             weekly_stats = df_ab.groupby([pd.Grouper(key='fecha_cambio', freq='W'), 'tipo_cambio']).size().unstack(fill_value=0)
             for idx, row in weekly_stats.iterrows():
+                # Sumar las altas nuevas y reactivaciones
+                altas_total = int(row.get('alta_nuevo', 0)) + int(row.get('alta_reactivado', 0))
                 stats['stats_semanales'].append({
                     'semana': idx.strftime('%Y-%m-%d'),
-                    'altas': int(row.get('alta', 0)),
-                    'bajas': int(row.get('baja', 0))
+                    'altas': altas_total,
+                    'bajas': int(row.get('baja', 0)),
+                    'altas_nuevas': int(row.get('alta_nuevo', 0)),
+                    'altas_reactivadas': int(row.get('alta_reactivado', 0))
                 })
     
     # Si no hay estadísticas semanales, agregar la fecha actual con 0,0
@@ -268,8 +298,8 @@ _Esta sección se actualiza automáticamente en cada ejecución_
 
 ### Últimas actualizaciones
 
-| Semana | Altas | Bajas |
-|--------|-------|-------|
+| Semana | Altas (Nuevos/Reactivados) | Bajas |
+|--------|------------------------|-------|
 {}
 
 """.format(
@@ -277,7 +307,7 @@ _Esta sección se actualiza automáticamente en cada ejecución_
         stats['productos_activos'],
         stats['productos_dados_baja'],
         stats['total_historico'],
-        '\n'.join([f"| {s['semana']} | {s['altas']} | {s['bajas']} |" for s in reversed(stats['stats_semanales'][-4:])])  # Mostrar solo las últimas 4 semanas
+        '\n'.join([f"| {s['semana']} | {s['altas']} ({s.get('altas_nuevas', 0)}/{s.get('altas_reactivadas', 0)}) | {s['bajas']} |" for s in reversed(stats['stats_semanales'][-4:])])  # Mostrar solo las últimas 4 semanas
     )
     
     if "## Estadísticas" in content:
@@ -289,6 +319,62 @@ _Esta sección se actualiza automáticamente en cada ejecución_
     
     with open('README.md', 'w') as f:
         f.write(content)
+
+def migrar_datos_historicos():
+    """Migra los datos históricos para recategorizar las altas"""
+    print("Iniciando migración de datos históricos...")
+    
+    archivo_historico = 'data/alg-historico.csv'
+    archivo_altas_bajas = 'data/altas_bajas.csv'
+    archivo_historico_backup = 'data/alg-historico.csv.bak'
+    archivo_altas_bajas_backup = 'data/altas_bajas.csv.bak'
+    
+    # Crear backups
+    if os.path.exists(archivo_historico):
+        import shutil
+        shutil.copy2(archivo_historico, archivo_historico_backup)
+        print(f"Backup creado: {archivo_historico_backup}")
+    
+    if os.path.exists(archivo_altas_bajas):
+        import shutil
+        shutil.copy2(archivo_altas_bajas, archivo_altas_bajas_backup)
+        print(f"Backup creado: {archivo_altas_bajas_backup}")
+        
+        # Leer archivo histórico y altas_bajas existente
+        df_historico = pd.read_csv(archivo_historico)
+        df_altas_bajas = pd.read_csv(archivo_altas_bajas)
+        
+        # Ordenar por fecha para procesar cronológicamente
+        df_altas_bajas = df_altas_bajas.sort_values('fecha_cambio')
+        
+        # Crear un nuevo DataFrame para las altas_bajas recategorizadas
+        nuevas_altas_bajas = []
+        productos_historico = set()  # Conjunto para trackear productos ya vistos
+        
+        # Procesar cada cambio cronológicamente
+        for _, row in df_altas_bajas.iterrows():
+            if row['tipo_cambio'] == 'alta':
+                # Verificar si el producto ya existía antes
+                if row['id'] in productos_historico:
+                    # Era una reactivación
+                    row['tipo_cambio'] = 'alta_reactivado'
+                else:
+                    # Era un alta nueva
+                    row['tipo_cambio'] = 'alta_nuevo'
+                    productos_historico.add(row['id'])
+            elif row['tipo_cambio'] == 'baja':
+                # Mantener el registro de baja como está
+                pass
+            
+            nuevas_altas_bajas.append(row)
+        
+        # Convertir a DataFrame y guardar
+        df_nuevas_altas_bajas = pd.DataFrame(nuevas_altas_bajas)
+        df_nuevas_altas_bajas.to_csv(archivo_altas_bajas, index=False)
+        print(f"✅ Archivo de altas y bajas migrado: {archivo_altas_bajas}")
+    
+    print("✅ Migración completada")
+    return True
 
 def main():
     """Función principal"""
@@ -342,4 +428,8 @@ def main():
         raise
 
 if __name__ == "__main__":
-    main()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == '--migrar':
+        migrar_datos_historicos()
+    else:
+        main()
