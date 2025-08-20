@@ -165,7 +165,7 @@
     <h1>Monitoreo de Productos Sin Gluten - ANMAT</h1>
     <div class="intro">
       <b>¿Qué es esto?</b> Un monitor automático y abierto del listado oficial de Alimentos Libres de Gluten (<b>ALG</b>) publicado por la <a href="https://listadoalg.anmat.gob.ar/Home" target="_blank" style="color:#fff;text-decoration:underline;font-weight:bold;">ANMAT</a>.<br>
-      <span style="color:#d6eaff;">Cada semana se detectan y publican los nuevos productos agregados al padrón oficial.</span><br>
+      <span style="color:#d6eaff;">Cada semana se detectan y publican los nuevos productos agregados al padrón oficial. Los productos marcados con ⟳ son productos que vuelven al listado luego de haber estado dados de baja.</span><br>
       <span style="font-size:0.98em;opacity:0.8;">Hecho por <a href="https://github.com/rusosnith/singluten" target="_blank" style="color:#fff;text-decoration:underline;">@rusosnith</a> &mdash; Código abierto y datos públicos.</span>
     </div>
     <div class="stats" id="stats"></div>
@@ -237,7 +237,7 @@
           const esReactivado = row.tipo_cambio === 'alta_reactivado';
           html += `<tr class="alta">` +
             `<td>${row['marca'] ?? ''}</td>` +
-            `<td>${row['denominacionventa'] ?? ''} ${esReactivado ? '<small style="color:#c62828">(reactivado)</small>' : ''}</td>` +
+            `<td>${row['denominacionventa'] ?? ''} ${esReactivado ? '<span style="color:#c62828;font-weight:bold" title="Producto reactivado">⟳</span>' : ''}</td>` +
             `<td>${row['TipoProducto'] ?? ''}</td>` +
             '</tr>';
         });
