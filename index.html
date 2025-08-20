@@ -201,8 +201,8 @@
 
     // Cargar y mostrar altas recientes
     d3.dsv(",", 'data/altas_bajas.csv', d3.autoType).then(function(data) {
-      // Filtrar solo altas
-      const altas = data.filter(d => d.tipo_cambio === 'alta');
+      // Filtrar altas (nuevos y reactivados)
+      const altas = data.filter(d => d.tipo_cambio === 'alta_nuevo' || d.tipo_cambio === 'alta_reactivado');
       // Ordenar por fecha descendente
       altas.sort((a, b) => new Date(b.fecha_cambio) - new Date(a.fecha_cambio));
       // Usar todos los registros disponibles
@@ -234,9 +234,10 @@
         html += `<div class="semana-table" style="${idx===0?'':'max-height:0;opacity:0;pointer-events:none;'}">`;
         html += '<table><thead><tr><th>Marca</th><th>Denominación</th><th>Tipo Producto</th></tr></thead><tbody>';
         agrupado[semana].forEach(row => {
-          html += `<tr class="${row.tipo_cambio}">` +
+          const esReactivado = row.tipo_cambio === 'alta_reactivado';
+          html += `<tr class="alta">` +
             `<td>${row['marca'] ?? ''}</td>` +
-            `<td>${row['denominacionventa'] ?? ''}</td>` +
+            `<td>${row['denominacionventa'] ?? ''} ${esReactivado ? '<small style="color:#c62828">(reactivado)</small>' : ''}</td>` +
             `<td>${row['TipoProducto'] ?? ''}</td>` +
             '</tr>';
         });
