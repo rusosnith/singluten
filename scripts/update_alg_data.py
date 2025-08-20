@@ -346,30 +346,61 @@ def migrar_datos_historicos():
         
         # Ordenar por fecha para procesar cronológicamente
         df_altas_bajas = df_altas_bajas.sort_values('fecha_cambio')
-        
-        # Crear un nuevo DataFrame para las altas_bajas recategorizadas
-        nuevas_altas_bajas = []
-        productos_historico = set()  # Conjunto para trackear productos ya vistos
-        
-        # Procesar cada cambio cronológicamente
-        for _, row in df_altas_bajas.iterrows():
-            if row['tipo_cambio'] == 'alta':
-                # Verificar si el producto ya existía antes
-                if row['id'] in productos_historico:
-                    # Era una reactivación
-                    row['tipo_cambio'] = 'alta_reactivado'
+
+        # Preparar lookup desde histórico para detectar reactivaciones
+        df_historico_lookup = None
+        if os.path.exists(archivo_historico):
+            try:
+                df_historico_lookup = pd.read_csv(archivo_historico)
+                if 'id' in df_historico_lookup.columns:
+                    df_historico_lookup['fecha_baja'] = pd.to_datetime(df_historico_lookup['fecha_baja'], errors='coerce')
+                    df_historico_lookup = df_historico_lookup.set_index('id')
                 else:
-                    # Era un alta nueva
-                    row['tipo_cambio'] = 'alta_nuevo'
-                    productos_historico.add(row['id'])
-            elif row['tipo_cambio'] == 'baja':
-                # Mantener el registro de baja como está
-                pass
-            
-            nuevas_altas_bajas.append(row)
-        
-        # Convertir a DataFrame y guardar
-        df_nuevas_altas_bajas = pd.DataFrame(nuevas_altas_bajas)
+                    df_historico_lookup = None
+            except Exception:
+                df_historico_lookup = None
+
+        filas_nuevas = []
+
+        for _, row in df_altas_bajas.iterrows():
+            pid = row.get('id')
+            tipo = str(row.get('tipo_cambio', '')).strip() if pd.notna(row.get('tipo_cambio', '')) else ''
+            fecha_cambio = row.get('fecha_cambio')
+            # normalizar fecha_cambio a datetime
+            try:
+                fecha_dt = pd.to_datetime(fecha_cambio)
+            except Exception:
+                fecha_dt = None
+
+            if tipo.startswith('alta') or tipo == 'alta':
+                nuevo_tipo = 'alta_nuevo'
+                # Si el histórico indica que este producto tuvo una fecha_baja anterior a esta fecha, es reactivado
+                if df_historico_lookup is not None and pid in df_historico_lookup.index:
+                    hist_row = df_historico_lookup.loc[pid]
+                    fecha_baja_hist = hist_row.get('fecha_baja')
+                    if pd.notna(fecha_baja_hist) and fecha_dt is not None:
+                        # comparar fechas
+                        try:
+                            fecha_baja_dt = pd.to_datetime(fecha_baja_hist)
+                            if fecha_baja_dt <= fecha_dt:
+                                nuevo_tipo = 'alta_reactivado'
+                        except Exception:
+                            pass
+
+                new_row = row.copy()
+                new_row['tipo_cambio'] = nuevo_tipo
+                filas_nuevas.append(new_row)
+
+            elif tipo == 'baja':
+                new_row = row.copy()
+                new_row['tipo_cambio'] = 'baja'
+                filas_nuevas.append(new_row)
+
+            else:
+                # Mantener otros tipos
+                filas_nuevas.append(row)
+
+        df_nuevas_altas_bajas = pd.DataFrame(filas_nuevas)
         df_nuevas_altas_bajas.to_csv(archivo_altas_bajas, index=False)
         print(f"✅ Archivo de altas y bajas migrado: {archivo_altas_bajas}")
     
