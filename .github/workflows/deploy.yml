@@ -1,6 +1,12 @@
 name: Deploy via FTP
 
 on:
+  workflow_run:
+    workflows: ["Update ALG Data"]
+    types:
+      - completed
+    branches:
+      - main
   push:
     branches:
       - main

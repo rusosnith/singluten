@@ -205,8 +205,8 @@
       const altas = data.filter(d => d.tipo_cambio === 'alta');
       // Ordenar por fecha descendente
       altas.sort((a, b) => new Date(b.fecha_cambio) - new Date(a.fecha_cambio));
-      // Mostrar solo las 30 más recientes
-      const recientes = altas.slice(0, 30);
+      // Usar todos los registros disponibles
+      const recientes = altas;
       // Agrupar por semana (lunes a domingo)
       const fmtSemana = d3.timeFormat('%d/%m/%Y');
       function getMonday(d) {
