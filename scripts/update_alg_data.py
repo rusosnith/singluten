@@ -240,14 +240,17 @@ def actualizar_estadisticas_readme(df_historico):
     """Actualiza la sección de estadísticas en el README"""
     # Calcular estadísticas
     stats = {}
+    fecha_hoy = datetime.now().strftime('%Y-%m-%d')
     
     # Fecha de primera ejecución (primer alta registrada)
     stats['fecha_inicio'] = df_historico['fecha_alta'].min()
+    stats['ultima_actualizacion'] = fecha_hoy
     
     # Productos activos y dados de baja
     stats['productos_activos'] = len(df_historico[df_historico['fecha_baja'].isna()])
     stats['productos_dados_baja'] = len(df_historico[df_historico['fecha_baja'].notna()])
     stats['total_historico'] = len(df_historico)
+    stats['ultimo_cambio_detectado'] = None
     
     # Estadísticas semanales
     stats['stats_semanales'] = []
@@ -258,6 +261,9 @@ def actualizar_estadisticas_readme(df_historico):
         if not df_ab.empty:
             df_ab['fecha_cambio'] = pd.to_datetime(df_ab['fecha_cambio'])
             df_ab = df_ab.sort_values('fecha_cambio')
+            ultimo_cambio = df_ab['fecha_cambio'].max()
+            if pd.notna(ultimo_cambio):
+                stats['ultimo_cambio_detectado'] = ultimo_cambio.strftime('%Y-%m-%d')
             
             # Agrupar por semana
             weekly_stats = df_ab.groupby([pd.Grouper(key='fecha_cambio', freq='W'), 'tipo_cambio']).size().unstack(fill_value=0)
@@ -292,6 +298,8 @@ _Esta sección se actualiza automáticamente en cada ejecución_
 | Métrica | Valor |
 |---------|-------|
 | 📅 Inicio del monitoreo | {} |
+| 🔄 Última actualización | {} |
+| 🕒 Último cambio detectado | {} |
 | ✅ Productos activos | {:,} |
 | ❌ Productos dados de baja | {:,} |
 | 📊 Total histórico | {:,} |
@@ -304,15 +312,17 @@ _Esta sección se actualiza automáticamente en cada ejecución_
 
 """.format(
         stats['fecha_inicio'],
+    stats['ultima_actualizacion'],
+    stats['ultimo_cambio_detectado'] or 'Sin cambios registrados',
         stats['productos_activos'],
         stats['productos_dados_baja'],
         stats['total_historico'],
         '\n'.join([f"| {s['semana']} | {s['altas']} ({s.get('altas_nuevas', 0)}/{s.get('altas_reactivadas', 0)}) | {s['bajas']} |" for s in reversed(stats['stats_semanales'][-4:])])  # Mostrar solo las últimas 4 semanas
     )
     
-    if "## Estadísticas" in content:
-        # Reemplazar sección existente
-        content = re.sub(r"## Estadísticas.*?(?=##|$)", estado_actual, content, flags=re.DOTALL)
+    pattern = r"## (?:Estado actual|Estadísticas).*?(?=## Consultas útiles|$)"
+    if re.search(pattern, content, flags=re.DOTALL):
+        content = re.sub(pattern, estado_actual, content, flags=re.DOTALL)
     else:
         # Agregar nueva sección antes de "## Consultas útiles"
         content = content.replace("## Consultas útiles", estado_actual + "## Consultas útiles")
