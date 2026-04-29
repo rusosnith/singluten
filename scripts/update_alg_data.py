@@ -432,14 +432,85 @@ def main():
         actualizar_estadisticas_readme(df_historico)
         print("✅ README actualizado con estadísticas")
 
-        # 6. Generar estadisticas.json con tablas pivot de productos activos
-        df_activos = df_historico[df_historico['fecha_baja'].isna()]
-        estadisticas = {
-            "por_marca": df_activos['marca'].value_counts().to_dict() if 'marca' in df_activos.columns else {},
-            "por_tipo_producto": df_activos['TipoProducto'].value_counts().to_dict() if 'TipoProducto' in df_activos.columns else {},
-            "por_denominacion_venta": df_activos['denominacionventa'].value_counts().to_dict() if 'denominacionventa' in df_activos.columns else {}
-        }
+        # 6. Generar estadisticas.json con estadísticas completas
         import json
+        df_activos = df_historico[df_historico['fecha_baja'].isna()]
+        df_bajas = df_historico[df_historico['fecha_baja'].notna()]
+
+        # --- Totales generales ---
+        total_activos = len(df_activos)
+        total_bajas = len(df_bajas)
+        total_historico = len(df_historico)
+
+        # --- Por marca (activos) ---
+        por_marca = df_activos['marca'].value_counts().to_dict() if 'marca' in df_activos.columns else {}
+
+        # --- Por tipo de producto (activos) ---
+        por_tipo = df_activos['TipoProducto'].value_counts().to_dict() if 'TipoProducto' in df_activos.columns else {}
+
+        # --- Tendencia semanal de altas y bajas ---
+        tendencia_semanal = []
+        if os.path.exists('data/altas_bajas.csv'):
+            df_ab = pd.read_csv('data/altas_bajas.csv')
+            if not df_ab.empty:
+                df_ab['fecha_cambio'] = pd.to_datetime(df_ab['fecha_cambio'], errors='coerce')
+                df_ab = df_ab.dropna(subset=['fecha_cambio'])
+                weekly = df_ab.groupby([pd.Grouper(key='fecha_cambio', freq='W-MON'), 'tipo_cambio']).size().unstack(fill_value=0)
+                for idx_w, row_w in weekly.iterrows():
+                    tendencia_semanal.append({
+                        'semana': idx_w.strftime('%Y-%m-%d'),
+                        'altas_nuevas': int(row_w.get('alta_nuevo', 0)),
+                        'altas_reactivadas': int(row_w.get('alta_reactivado', 0)),
+                        'bajas': int(row_w.get('baja', 0))
+                    })
+
+        # --- Palabras clave en denominaciones (activos) ---
+        STOPWORDS = {
+            'de', 'del', 'la', 'el', 'los', 'las', 'y', 'en', 'con', 'sin', 'a', 'al',
+            'un', 'una', 'por', 'para', 'o', 'e', 'su', 'se', 'es', 'no', 'que',
+            'libre', 'gluten', 'sin', 'tacc', 'sta', 'cc', '-', 'kg', 'gr', 'ml',
+            'lt', 'g', 'x', 'n°', 'nro', 'cert', 'certificado', 'tac',
+        }
+        from collections import Counter
+        import re as _re
+        palabras_counter = Counter()
+        if 'denominacionventa' in df_activos.columns:
+            for denom in df_activos['denominacionventa'].dropna():
+                tokens = _re.findall(r'[a-záéíóúüñ]{3,}', str(denom).lower())
+                for tok in tokens:
+                    if tok not in STOPWORDS:
+                        palabras_counter[tok] += 1
+        top_palabras = dict(palabras_counter.most_common(60))
+
+        # --- Top marcas con más altas recientes (últimas 8 semanas) ---
+        top_marcas_altas_recientes = {}
+        top_tipos_altas_recientes = {}
+        if os.path.exists('data/altas_bajas.csv'):
+            df_ab2 = pd.read_csv('data/altas_bajas.csv')
+            if not df_ab2.empty:
+                df_ab2['fecha_cambio'] = pd.to_datetime(df_ab2['fecha_cambio'], errors='coerce')
+                df_ab2 = df_ab2.dropna(subset=['fecha_cambio'])
+                fecha_corte = df_ab2['fecha_cambio'].max() - pd.Timedelta(weeks=8)
+                df_recientes = df_ab2[
+                    (df_ab2['fecha_cambio'] >= fecha_corte) &
+                    (df_ab2['tipo_cambio'].str.startswith('alta', na=False))
+                ]
+                if 'marca' in df_recientes.columns:
+                    top_marcas_altas_recientes = df_recientes['marca'].value_counts().head(15).to_dict()
+                if 'TipoProducto' in df_recientes.columns:
+                    top_tipos_altas_recientes = df_recientes['TipoProducto'].value_counts().head(15).to_dict()
+
+        estadisticas = {
+            "total_activos": total_activos,
+            "total_bajas": total_bajas,
+            "total_historico": total_historico,
+            "por_marca": por_marca,
+            "por_tipo_producto": por_tipo,
+            "tendencia_semanal": tendencia_semanal,
+            "top_palabras_clave": top_palabras,
+            "top_marcas_altas_recientes": top_marcas_altas_recientes,
+            "top_tipos_altas_recientes": top_tipos_altas_recientes,
+        }
         with open('data/estadisticas.json', 'w') as f:
             json.dump(estadisticas, f, ensure_ascii=False, indent=2)
         print("✅ Archivo data/estadisticas.json generado")

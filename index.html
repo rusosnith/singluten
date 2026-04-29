@@ -158,6 +158,252 @@
       .intro { font-size: 0.97rem; }
       table { font-size: 0.93em; }
     }
+    .analytics {
+      margin: 1.2rem auto;
+      max-width: 98vw;
+    }
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 800px) {
+      .analytics-grid { grid-template-columns: 1fr; }
+    }
+    .chart-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px #0001;
+      padding: 1rem 0.8rem 0.6rem 0.8rem;
+      overflow: hidden;
+    }
+    .chart-full {
+      grid-column: 1 / -1;
+    }
+    .chart-title {
+      font-size: 0.92em;
+      font-weight: 700;
+      color: #c62828;
+      margin-bottom: 0.5rem;
+      text-align: center;
+      letter-spacing: 0.2px;
+    }
+      .chart-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.8rem;
+        margin-bottom: 0.65rem;
+      }
+      .chart-header .chart-title {
+        margin-bottom: 0;
+        text-align: left;
+      }
+      .chart-tools {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        margin-left: auto;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .filter-info {
+        color: #8b8b8b;
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+      .filter-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .filter-panel {
+        position: relative;
+        margin: 0;
+      }
+      .filter-panel summary {
+        list-style: none;
+        cursor: pointer;
+        color: #8b8b8b;
+        font-size: 0.8rem;
+        border: 1px solid #ecd2d2;
+        border-radius: 999px;
+        padding: 0.12rem 0.65rem;
+        background: #fff8f8;
+        user-select: none;
+      }
+      .filter-chip {
+        border: 1px solid #ecd2d2;
+        background: #fff8f8;
+        color: #8b8b8b;
+        border-radius: 999px;
+        padding: 0.12rem 0.65rem;
+        font-size: 0.78rem;
+        line-height: 1.4;
+        cursor: pointer;
+      }
+      .filter-chip:hover,
+      .filter-panel summary:hover {
+        color: #c62828;
+        border-color: #dca7a7;
+      }
+      .filter-chip.is-active,
+      .filter-panel.is-active summary,
+      .filter-panel[open] summary {
+        color: #c62828;
+        border-color: #dca7a7;
+        background: #fff1f1;
+      }
+      .filter-panel summary::-webkit-details-marker {
+        display: none;
+      }
+      .filter-panel-body {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 0.4rem);
+        min-width: 220px;
+        background: #fff;
+        border: 1px solid #f1d7d7;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px #0001;
+        padding: 0.7rem 0.8rem;
+        z-index: 20;
+      }
+      .filter-panel-body label {
+        display: block;
+        color: #777;
+        font-size: 0.78rem;
+        margin-bottom: 0.5rem;
+      }
+      .filter-panel-body input {
+        margin-top: 0.2rem;
+        margin-bottom: 0;
+        font-size: 0.82rem;
+        padding: 0.25rem 0.35rem;
+        border: 1px solid #f0d0d0;
+        border-radius: 6px;
+        background: #fff;
+      }
+      .filter-actions {
+        display: flex;
+        justify-content: flex-end;
+      }
+      .filter-actions a {
+        color: #8b8b8b;
+        font-size: 0.78rem;
+        text-decoration: none;
+      }
+      .filter-actions a:hover {
+        color: #c62828;
+        text-decoration: underline;
+      }
+      .treemap-breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        min-height: 1.4rem;
+        margin-bottom: 0.5rem;
+        color: #7d7d7d;
+        font-size: 0.82rem;
+      }
+      .treemap-back {
+        border: none;
+        background: transparent;
+        color: #c62828;
+        font-size: 0.82rem;
+        padding: 0;
+        cursor: pointer;
+      }
+      .treemap-back:hover {
+        text-decoration: underline;
+      }
+      .treemap-current {
+        color: #555;
+        font-weight: 600;
+      }
+      #chart-marcas svg rect {
+        stroke: #fff;
+        stroke-width: 0.6;
+      }
+    .analytics svg text { fill: #444; }
+    @media (min-width: 700px) {
+      .analytics { margin-left: 2.5vw; margin-right: 2.5vw; max-width: 95vw; }
+    }
+    .search-panel {
+      margin: 1.1rem auto 0;
+      max-width: 98vw;
+    }
+    .search-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px #0001;
+      padding: 1rem 1rem 0.85rem;
+      border: 1px solid #f3d7d7;
+    }
+    .search-title {
+      color: #c62828;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+    }
+    .search-copy {
+      color: #777;
+      font-size: 0.88rem;
+      margin: 0 0 0.8rem;
+    }
+    .search-controls {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .search-controls input {
+      flex: 1 1 320px;
+      margin-bottom: 0;
+      border: 1px solid #efcfcf;
+      background: #fffafa;
+    }
+    .search-controls button {
+      margin-bottom: 0;
+      border-color: #e8bcbc;
+      color: #c62828;
+    }
+    .search-controls button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+    .search-summary {
+      margin-top: 0.75rem;
+      color: #7f7f7f;
+      font-size: 0.85rem;
+    }
+      @media (max-width: 800px) {
+        .chart-header {
+          align-items: stretch;
+          flex-direction: column;
+        }
+        .chart-tools {
+          justify-content: space-between;
+        }
+        .filter-info {
+          white-space: normal;
+        }
+        .filter-panel-body {
+          left: 0;
+          right: auto;
+        }
+        .search-panel {
+          margin-left: 2.5vw;
+          margin-right: 2.5vw;
+          max-width: 95vw;
+        }
+        .search-controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+      }
   </style>
 </head>
 <body>
@@ -170,8 +416,68 @@
     </div>
     <div class="stats" id="stats"></div>
   </header>
+  <section class="analytics">
+    <h2 style="text-align:center;color:#c62828;font-size:1.1rem;font-weight:700;margin:1.2rem 0 0.5rem 0;letter-spacing:0.5px;">Análisis del padrón</h2>
+    <div class="analytics-grid">
+      <div class="chart-card chart-full">
+        <div class="chart-title">Altas y bajas por semana</div>
+        <div id="chart-tendencia"></div>
+      </div>
+      <div class="chart-card chart-full">
+        <div class="chart-header">
+          <div class="chart-title">Marcas en el padrón</div>
+          <div class="chart-tools">
+            <span id="filter-info" class="filter-info">Base activa completa</span>
+            <div class="filter-bar">
+              <button type="button" class="filter-chip" data-range="3m">Últimos 3 meses</button>
+              <button type="button" class="filter-chip" data-range="6m">Últimos 6 meses</button>
+              <button type="button" class="filter-chip" data-range="1y">Último año</button>
+              <button type="button" class="filter-chip" data-range="all">Todo</button>
+              <details class="filter-panel" id="custom-filter-panel">
+              <summary>Filtro personalizado</summary>
+              <div class="filter-panel-body">
+                <label>
+                  Desde
+                  <input type="date" id="fecha-desde">
+                </label>
+                <label>
+                  Hasta
+                  <input type="date" id="fecha-hasta">
+                </label>
+                <div class="filter-actions">
+                  <a href="#" id="btn-todo">Limpiar filtro</a>
+                </div>
+              </div>
+              </details>
+            </div>
+          </div>
+        </div>
+        <div id="chart-marcas-breadcrumb" class="treemap-breadcrumb"></div>
+        <div id="chart-marcas"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Categorías de producto</div>
+        <div id="chart-tipos"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Palabras clave más frecuentes en denominaciones</div>
+        <div id="palabras-clave" style="padding:0.5rem 0.2rem;line-height:2;"></div>
+      </div>
+    </div>
+  </section>
+  <section class="search-panel">
+    <div class="search-card">
+      <div class="search-title">Buscar en altas y bajas</div>
+      <p class="search-copy">Filtrá por denominación, marca o tipo de producto dentro de los movimientos semanales.</p>
+      <div class="search-controls">
+        <input type="search" id="timeline-search" placeholder="Ej: yerba, havanna, premezcla, alfajor">
+        <button type="button" id="timeline-search-clear" class="secondary" disabled>Limpiar</button>
+      </div>
+      <div id="timeline-search-summary" class="search-summary">Mostrando todos los movimientos recientes.</div>
+    </div>
+  </section>
   <section class="timeline">
-    <h2 style="margin-top:0.2em;">Altas recientes de productos sin gluten</h2>
+    <h2 style="margin-top:0.2em;">Altas y bajas recientes de productos sin gluten</h2>
     <div id="timeline-table"></div>
     <!-- Circle pack eliminado -->
   </section>
@@ -179,15 +485,478 @@
     Datos públicos de <a href="https://listadoalg.anmat.gob.ar/Home" target="_blank">ANMAT</a> &mdash; Código y scraping: <a href="https://github.com/rusosnith/singluten" target="_blank">github.com/rusosnith/singluten</a>
   </footer>
   <script>
-    // Cargar estadísticas
-    d3.json('data/estadisticas.json').then(function(stats) {
-      const activos = d3.sum(Object.values(stats.por_marca));
-      const total = activos; // Si quieres sumar bajas, ajusta aquí
-      const marcas = Object.keys(stats.por_marca).length;
+    let _statsGlobal = null;
+    let _historicoData = [];
+    let _altasBajasData = [];
+    let _treemapState = { marca: null, tipo: null };
+    let _filterBounds = { min: null, max: null };
+
+    function parseDate(value) {
+      if (value === null || value === undefined || value === '') return null;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatDateLabel(value) {
+      const date = parseDate(value);
+      return date ? date.toLocaleDateString('es-AR') : '';
+    }
+
+    function toInputDate(date) {
+      return date ? date.toISOString().slice(0, 10) : '';
+    }
+
+    function shiftMonths(date, months) {
+      const shifted = new Date(date.getTime());
+      shifted.setMonth(shifted.getMonth() + months);
+      return shifted;
+    }
+
+    function updateFilterUi(activeKey) {
+      document.querySelectorAll('.filter-chip[data-range]').forEach(button => {
+        button.classList.toggle('is-active', button.dataset.range === activeKey);
+      });
+      const panel = document.getElementById('custom-filter-panel');
+      if (panel) panel.classList.toggle('is-active', activeKey === 'custom');
+    }
+
+    function normalizeLabel(value, fallback) {
+      const text = String(value ?? '').trim();
+      return text && text !== 'null' && text !== 'undefined' ? text : fallback;
+    }
+
+    function normalizeSearchValue(value) {
+      return String(value ?? '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+    }
+
+    function updateTimelineSearchSummary(query, filteredCount, totalCount) {
+      const summary = document.getElementById('timeline-search-summary');
+      if (!summary) return;
+      if (!query) {
+        summary.textContent = 'Mostrando todos los movimientos recientes.';
+        return;
+      }
+      if (!filteredCount) {
+        summary.textContent = `Sin resultados para "${query}" en ${totalCount.toLocaleString('es-AR')} movimientos.`;
+        return;
+      }
+      summary.textContent = `${filteredCount.toLocaleString('es-AR')} resultado${filteredCount !== 1 ? 's' : ''} para "${query}" sobre ${totalCount.toLocaleString('es-AR')} movimientos.`;
+    }
+
+    function rowMatchesTimelineSearch(row, query) {
+      if (!query) return true;
+      const terms = query.split(/\s+/).filter(Boolean);
+      if (!terms.length) return true;
+      const haystack = normalizeSearchValue([
+        row.marca,
+        row.denominacionventa,
+        row.TipoProducto
+      ].join(' '));
+      return terms.every(term => haystack.includes(term));
+    }
+
+    function getTooltip() {
+      let tooltip = d3.select('#chart-tooltip');
+      if (tooltip.empty()) {
+        tooltip = d3.select('body').append('div').attr('id', 'chart-tooltip')
+          .style('position', 'fixed')
+          .style('pointer-events', 'none')
+          .style('background', 'rgba(0,0,0,0.8)')
+          .style('color', '#fff')
+          .style('padding', '0.4rem 0.7rem')
+          .style('border-radius', '8px')
+          .style('font-size', '0.82rem')
+          .style('z-index', '9999')
+          .style('display', 'none');
+      }
+      return tooltip;
+    }
+
+    function renderTipos(rows) {
+      const container = document.getElementById('chart-tipos');
+      container.innerHTML = '';
+      const tiposData = d3.rollups(
+        rows,
+        values => values.length,
+        row => normalizeLabel(row.TipoProducto, 'Sin categoría')
+      ).sort((a, b) => b[1] - a[1]).slice(0, 15);
+      if (!tiposData.length) {
+        container.innerHTML = '<p style="color:#999;text-align:center;padding:1rem;">Sin datos</p>';
+        return;
+      }
+      const wrapLabel = function(text, maxCharsPerLine, maxLines) {
+        const words = String(text).split(/\s+/).filter(Boolean);
+        const lines = [];
+        let current = '';
+        words.forEach(word => {
+          const candidate = current ? `${current} ${word}` : word;
+          if (candidate.length <= maxCharsPerLine) {
+            current = candidate;
+            return;
+          }
+          if (current) lines.push(current);
+          current = word;
+        });
+        if (current) lines.push(current);
+        if (lines.length <= maxLines) return lines;
+        const trimmed = lines.slice(0, maxLines);
+        const last = trimmed[maxLines - 1];
+        trimmed[maxLines - 1] = last.length > maxCharsPerLine - 1
+          ? `${last.slice(0, Math.max(1, maxCharsPerLine - 1)).trim()}…`
+          : `${last}…`;
+        return trimmed;
+      };
+
+      const labelWidth = 290;
+      const rowHeight = 48;
+      const margin = {top: 8, right: 40, bottom: 6, left: labelWidth + 24};
+      const width = container.clientWidth || 500;
+      const height = tiposData.length * rowHeight + margin.top + margin.bottom;
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+      const svg = d3.select(container).append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+      const y = d3.scaleBand().domain(tiposData.map(d => d[0])).range([0, innerHeight]).padding(0.2);
+      const x = d3.scaleLinear().domain([0, tiposData[0][1]]).nice().range([0, innerWidth]);
+      const labelX = -14;
+      const lineHeight = 14;
+
+      const labels = svg.append('g');
+      labels.selectAll('text.label').data(tiposData).enter().append('text')
+        .attr('class', 'label')
+        .attr('text-anchor', 'end')
+        .style('font-size', '0.74em')
+        .style('font-weight', '500')
+        .style('fill', '#555')
+        .each(function(d) {
+          const lines = wrapLabel(d[0], 34, 3);
+          const centerY = y(d[0]) + y.bandwidth() / 2;
+          const startY = centerY - ((lines.length - 1) * lineHeight) / 2;
+          const text = d3.select(this);
+          lines.forEach((line, index) => {
+            text.append('tspan')
+              .attr('x', labelX)
+              .attr('y', startY + index * lineHeight)
+              .text(line);
+          });
+        });
+
+      svg.selectAll('rect').data(tiposData).enter().append('rect')
+        .attr('x', 0)
+        .attr('y', d => y(d[0]))
+        .attr('height', y.bandwidth())
+        .attr('width', d => x(d[1]))
+        .attr('fill', '#d85a49');
+      svg.selectAll('text.value').data(tiposData).enter().append('text')
+        .attr('class', 'value')
+        .attr('x', d => x(d[1]) + 6)
+        .attr('y', d => y(d[0]) + y.bandwidth() / 2 + 4)
+        .style('font-size', '0.78em')
+        .style('fill', '#666')
+        .text(d => d[1].toLocaleString('es-AR'));
+    }
+
+    function renderPalabras(rows) {
+      const stopwords = new Set(['de', 'del', 'la', 'el', 'los', 'las', 'y', 'en', 'con', 'sin', 'a', 'al', 'un', 'una', 'por', 'para', 'o', 'e', 'su', 'se', 'es', 'no', 'que', 'libre', 'gluten', 'tacc', 'sta', 'cc', 'kg', 'gr', 'ml', 'lt', 'g', 'x', 'tac']);
+      const words = {};
+      rows.forEach(row => {
+        const matches = String(row.denominacionventa ?? '').toLowerCase().match(/[a-záéíóúüñ]{3,}/g) || [];
+        matches.forEach(word => {
+          if (!stopwords.has(word)) words[word] = (words[word] || 0) + 1;
+        });
+      });
+      const topWords = Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 40);
+      const container = document.getElementById('palabras-clave');
+      if (!topWords.length) {
+        container.innerHTML = '<p style="color:#999;text-align:center;padding:1rem;">Sin datos</p>';
+        return;
+      }
+      const maxValue = topWords[0][1];
+      container.innerHTML = topWords.map(([word, count]) => {
+        const size = 0.78 + (count / maxValue) * 1.05;
+        const weight = count > maxValue * 0.45 ? 700 : 500;
+        return `<span style="font-size:${size.toFixed(2)}em;margin:0.18em 0.3em;display:inline-block;color:#c62828;font-weight:${weight}">${word} <small style="color:#aaa">${count}</small></span>`;
+      }).join('');
+    }
+
+    function renderTreemap(rows) {
+      const container = document.getElementById('chart-marcas');
+      const breadcrumb = document.getElementById('chart-marcas-breadcrumb');
+      container.innerHTML = '';
+      breadcrumb.innerHTML = '';
+      if (!rows.length) {
+        container.innerHTML = '<p style="color:#999;text-align:center;padding:1rem;">Sin datos</p>';
+        return;
+      }
+
+      const marcas = d3.rollups(
+        rows,
+        values => ({
+          total: values.length,
+          tipos: d3.rollups(
+            values,
+            innerValues => ({
+              total: innerValues.length,
+              productos: innerValues.map(row => ({
+                name: normalizeLabel(row.denominacionventa, 'Sin denominación'),
+                value: 1,
+                rnpa: normalizeLabel(row.rnpa, ''),
+                id: normalizeLabel(row.id, normalizeLabel(row.rnpa, 'sin-id'))
+              }))
+            }),
+            row => normalizeLabel(row.TipoProducto, 'Sin categoría')
+          ).sort((a, b) => b[1].total - a[1].total)
+        }),
+        row => normalizeLabel(row.marca, 'Sin marca')
+      ).sort((a, b) => b[1].total - a[1].total);
+
+      if (_treemapState.marca && !marcas.some(([name]) => name === _treemapState.marca)) {
+        _treemapState.marca = null;
+        _treemapState.tipo = null;
+      }
+
+      const marcaActual = _treemapState.marca
+        ? marcas.find(([name]) => name === _treemapState.marca)
+        : null;
+      if (_treemapState.tipo && (!marcaActual || !marcaActual[1].tipos.some(([name]) => name === _treemapState.tipo))) {
+        _treemapState.tipo = null;
+      }
+
+      let nodes;
+      let level = 'marca';
+      if (_treemapState.marca && _treemapState.tipo && marcaActual) {
+        const tipoActual = marcaActual[1].tipos.find(([name]) => name === _treemapState.tipo);
+        nodes = tipoActual ? tipoActual[1].productos.map(producto => ({
+          ...producto,
+          label: producto.name,
+          value: 1
+        })) : [];
+        level = 'producto';
+        const backMarca = document.createElement('button');
+        backMarca.className = 'treemap-back';
+        backMarca.textContent = 'Marcas';
+        backMarca.addEventListener('click', () => {
+          _treemapState.marca = null;
+          _treemapState.tipo = null;
+          renderTreemap(rows);
+        });
+        const sep1 = document.createElement('span');
+        sep1.textContent = '/';
+        const backTipo = document.createElement('button');
+        backTipo.className = 'treemap-back';
+        backTipo.textContent = _treemapState.marca;
+        backTipo.addEventListener('click', () => {
+          _treemapState.tipo = null;
+          renderTreemap(rows);
+        });
+        const sep2 = document.createElement('span');
+        sep2.textContent = '/';
+        const current = document.createElement('span');
+        current.className = 'treemap-current';
+        current.textContent = _treemapState.tipo;
+        breadcrumb.append(backMarca, sep1, backTipo, sep2, current);
+      } else if (_treemapState.marca && marcaActual) {
+        nodes = marcaActual[1].tipos.map(([name, data]) => ({
+          name,
+          label: name,
+          value: data.total
+        }));
+        level = 'tipo';
+        const backButton = document.createElement('button');
+        backButton.className = 'treemap-back';
+        backButton.textContent = 'Marcas';
+        backButton.addEventListener('click', () => {
+          _treemapState.marca = null;
+          _treemapState.tipo = null;
+          renderTreemap(rows);
+        });
+        const sep = document.createElement('span');
+        sep.textContent = '/';
+        const current = document.createElement('span');
+        current.className = 'treemap-current';
+        current.textContent = _treemapState.marca;
+        breadcrumb.append(backButton, sep, current);
+      } else {
+        nodes = marcas.map(([name, data]) => ({ name, label: name, value: data.total }));
+        breadcrumb.textContent = 'Click en una marca para ver tipos y después productos';
+      }
+
+      if (!nodes.length) {
+        container.innerHTML = '<p style="color:#999;text-align:center;padding:1rem;">Sin datos</p>';
+        return;
+      }
+
+      const width = container.clientWidth || 760;
+      const height = Math.min(Math.max(width * 0.58, 320), 520);
+      const root = d3.hierarchy({ children: nodes })
+        .sum(d => d.value)
+        .sort((a, b) => b.value - a.value);
+      d3.treemap().size([width, height]).paddingInner(0).paddingOuter(0).round(true)(root);
+      const tooltip = getTooltip();
+      const svg = d3.select(container).append('svg')
+        .attr('width', width)
+        .attr('height', height);
+      const fill = level === 'marca' ? '#d85848' : level === 'tipo' ? '#eb7b68' : '#f1a099';
+      const hoverFill = level === 'marca' ? '#bf4335' : level === 'tipo' ? '#d76552' : '#df7f77';
+
+      const groups = svg.selectAll('g')
+        .data(root.leaves())
+        .enter()
+        .append('g')
+        .attr('transform', d => `translate(${d.x0},${d.y0})`)
+        .style('cursor', level === 'producto' ? 'default' : 'pointer');
+
+      groups.append('rect')
+        .attr('width', d => Math.max(0, d.x1 - d.x0))
+        .attr('height', d => Math.max(0, d.y1 - d.y0))
+        .attr('fill', fill)
+        .on('mouseenter', function(event, d) {
+          d3.select(this).attr('fill', hoverFill);
+          const extra = level === 'producto' && d.data.rnpa ? `<br>RNPA ${d.data.rnpa}` : '';
+          tooltip.style('display', 'block')
+            .style('left', `${event.clientX + 14}px`)
+            .style('top', `${event.clientY - 10}px`)
+            .html(`<b>${d.data.label || d.data.name}</b><br>${d.value.toLocaleString('es-AR')} ${level === 'producto' ? 'producto' : 'productos'}${extra}`);
+        })
+        .on('mousemove', function(event) {
+          tooltip.style('left', `${event.clientX + 14}px`)
+            .style('top', `${event.clientY - 10}px`);
+        })
+        .on('mouseleave', function() {
+          d3.select(this).attr('fill', fill);
+          tooltip.style('display', 'none');
+        })
+        .on('click', function(event, d) {
+          if (level === 'producto') return;
+          if (level === 'marca') {
+            _treemapState.marca = d.data.name;
+            _treemapState.tipo = null;
+          } else if (level === 'tipo') {
+            _treemapState.tipo = d.data.name;
+          }
+          renderTreemap(rows);
+        });
+
+      groups.each(function(d) {
+        const group = d3.select(this);
+        const boxWidth = d.x1 - d.x0;
+        const boxHeight = d.y1 - d.y0;
+        const minSide = Math.min(boxWidth, boxHeight);
+        if (boxWidth < 34 || boxHeight < 18) return;
+        const fontSize = Math.max(8, Math.min(14, minSide * 0.22, boxWidth / 7.5));
+        const secondarySize = Math.max(7, fontSize - 1.4);
+        const maxChars = Math.max(4, Math.floor((boxWidth - 8) / (fontSize * 0.56)));
+        const labelText = (d.data.label || d.data.name || '').trim();
+        const truncated = labelText.length > maxChars ? `${labelText.slice(0, Math.max(3, maxChars - 1))}…` : labelText;
+        const label = group.append('text')
+          .attr('x', 4)
+          .attr('y', Math.max(11, fontSize + 1))
+          .style('font-size', `${fontSize}px`)
+          .style('font-weight', '700')
+          .style('fill', '#fff');
+        label.append('tspan').text(truncated);
+        if (boxHeight > fontSize + secondarySize + 12 && boxWidth > 58 && level !== 'producto') {
+          label.append('tspan')
+            .attr('x', 4)
+            .attr('dy', secondarySize + 4)
+            .style('font-size', `${secondarySize}px`)
+            .style('font-weight', '500')
+            .text(`${d.value.toLocaleString('es-AR')} productos`);
+        }
+      });
+    }
+
+    function getFilteredRows(desde, hasta) {
+      const desdeDate = parseDate(desde);
+      const hastaBase = parseDate(hasta);
+      const hastaDate = hastaBase ? new Date(hastaBase.getTime()) : null;
+      if (hastaDate) hastaDate.setHours(23, 59, 59, 999);
+      return _historicoData.filter(row => {
+        if (parseDate(row.fecha_baja)) return false;
+        const alta = parseDate(row.fecha_alta);
+        if (!alta) return false;
+        if (desdeDate && alta < desdeDate) return false;
+        if (hastaDate && alta > hastaDate) return false;
+        return true;
+      });
+    }
+
+    function renderAnalytics() {
+      const desde = document.getElementById('fecha-desde').value;
+      const hasta = document.getElementById('fecha-hasta').value;
+      const rows = getFilteredRows(desde || null, hasta || null);
+      const filterInfo = document.getElementById('filter-info');
+      if (desde || hasta) {
+        const parts = [];
+        if (desde) parts.push(`desde ${formatDateLabel(desde)}`);
+        if (hasta) parts.push(`hasta ${formatDateLabel(hasta)}`);
+        filterInfo.textContent = `${parts.join(' ')} · ${rows.length.toLocaleString('es-AR')} activos`;
+      } else {
+        filterInfo.textContent = `Base activa completa · ${rows.length.toLocaleString('es-AR')} productos`;
+      }
+      _treemapState.marca = null;
+      _treemapState.tipo = null;
+      renderTreemap(rows);
+      renderTipos(rows);
+      renderPalabras(rows);
+    }
+
+    function applyPresetRange(rangeKey) {
+      const desdeInput = document.getElementById('fecha-desde');
+      const hastaInput = document.getElementById('fecha-hasta');
+      const customPanel = document.getElementById('custom-filter-panel');
+      if (!_filterBounds.max) return;
+      if (rangeKey === 'all') {
+        desdeInput.value = '';
+        hastaInput.value = '';
+        if (customPanel) customPanel.open = false;
+        updateFilterUi('all');
+        renderAnalytics();
+        return;
+      }
+      const maxDate = new Date(_filterBounds.max.getTime());
+      let desdeDate = new Date(maxDate.getTime());
+      if (rangeKey === '3m') {
+        desdeDate = shiftMonths(maxDate, -3);
+      } else if (rangeKey === '6m') {
+        desdeDate = shiftMonths(maxDate, -6);
+      } else if (rangeKey === '1y') {
+        desdeDate = shiftMonths(maxDate, -12);
+      }
+      if (_filterBounds.min && desdeDate < _filterBounds.min) {
+        desdeDate = new Date(_filterBounds.min.getTime());
+      }
+      desdeInput.value = toInputDate(desdeDate);
+      hastaInput.value = toInputDate(maxDate);
+      if (customPanel) customPanel.open = false;
+      updateFilterUi(rangeKey);
+      renderAnalytics();
+    }
+
+    function applyCustomFilter() {
+      updateFilterUi('custom');
+      renderAnalytics();
+    }
+
+    function renderStatsAndTrend(stats) {
+      const activos = stats.total_activos || d3.sum(Object.values(stats.por_marca || {}));
+      const bajas = stats.total_bajas || 0;
+      const total = stats.total_historico || activos;
+      const marcas = Object.keys(stats.por_marca || {}).length;
+      const tipos = Object.keys(stats.por_tipo_producto || {}).length;
       const statsArr = [
-        { label: 'Productos activos', value: activos },
-        { label: 'Total histórico', value: total },
-        { label: 'Marcas registradas', value: marcas }
+        { label: 'Productos activos', value: activos.toLocaleString('es-AR') },
+        { label: 'Dados de baja', value: bajas.toLocaleString('es-AR') },
+        { label: 'Total histórico', value: total.toLocaleString('es-AR') },
+        { label: 'Marcas registradas', value: marcas.toLocaleString('es-AR') },
+        { label: 'Categorías', value: tipos.toLocaleString('es-AR') }
       ];
       d3.select('#stats').selectAll('.stat')
         .data(statsArr)
@@ -195,17 +964,65 @@
         .append('div')
         .attr('class', 'stat')
         .html(d => `<div class="value">${d.value}</div><div>${d.label}</div>`);
-    });
 
-    // (Circle pack eliminado)
+      const tendencia = (stats.tendencia_semanal || []).slice(-24);
+      if (tendencia.length <= 1) {
+        d3.select('#chart-tendencia').html('<p style="color:#999;text-align:center;padding:1rem;">Sin datos suficientes</p>');
+        return;
+      }
+      const margin = {top: 18, right: 20, bottom: 50, left: 38};
+      const width = document.getElementById('chart-tendencia').clientWidth || 700;
+      const height = 200;
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+      const svg = d3.select('#chart-tendencia').append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+      const x = d3.scaleBand().domain(tendencia.map(d => d.semana)).range([0, innerWidth]).padding(0.25);
+      const yMax = d3.max(tendencia, d => Math.max(d.altas_nuevas + d.altas_reactivadas, d.bajas)) || 1;
+      const y = d3.scaleLinear().domain([0, yMax]).nice().range([innerHeight, 0]);
+      svg.selectAll('.bar-alta').data(tendencia).enter().append('rect')
+        .attr('class', 'bar-alta')
+        .attr('x', d => x(d.semana))
+        .attr('y', d => y(d.altas_nuevas + d.altas_reactivadas))
+        .attr('width', x.bandwidth() / 2)
+        .attr('height', d => innerHeight - y(d.altas_nuevas + d.altas_reactivadas))
+        .attr('fill', '#c62828');
+      svg.selectAll('.bar-baja').data(tendencia).enter().append('rect')
+        .attr('class', 'bar-baja')
+        .attr('x', d => x(d.semana) + x.bandwidth() / 2)
+        .attr('y', d => y(d.bajas))
+        .attr('width', x.bandwidth() / 2)
+        .attr('height', d => innerHeight - y(d.bajas))
+        .attr('fill', '#f3b0a8');
+      const step = Math.ceil(tendencia.length / 6);
+      svg.append('g')
+        .attr('transform', `translate(0,${innerHeight})`)
+        .call(d3.axisBottom(x).tickValues(tendencia.filter((d, i) => i % step === 0).map(d => d.semana)).tickFormat(d => d.slice(5)))
+        .selectAll('text')
+        .attr('transform', 'rotate(-35)')
+        .style('text-anchor', 'end')
+        .style('font-size', '0.75em');
+      svg.append('g').call(d3.axisLeft(y).ticks(4).tickFormat(d3.format('d')));
+      const legend = svg.append('g').attr('transform', `translate(${innerWidth - 130}, -8)`);
+      legend.append('rect').attr('width', 12).attr('height', 12).attr('fill', '#c62828');
+      legend.append('text').attr('x', 16).attr('y', 10).style('font-size', '0.8em').text('Altas');
+      legend.append('rect').attr('x', 60).attr('width', 12).attr('height', 12).attr('fill', '#f3b0a8');
+      legend.append('text').attr('x', 76).attr('y', 10).style('font-size', '0.8em').text('Bajas');
+    }
 
-    // Cargar y mostrar cambios recientes (altas y bajas)
-    d3.dsv(",", 'data/altas_bajas.csv', d3.autoType).then(function(data) {
+    function renderTimeline(data, options = {}) {
+      const rawQuery = String(options.query || '').trim();
+      const query = normalizeSearchValue(rawQuery);
       // Filtrar registros relevantes: cualquier 'alta*' y 'baja'
-      const recientes = data.filter(d => {
+      const recientesBase = data.filter(d => {
         const t = (d && d.tipo_cambio) ? String(d.tipo_cambio) : '';
         return t.startsWith('alta') || t === 'baja';
       });
+      const recientes = recientesBase.filter(row => rowMatchesTimelineSearch(row, query));
+      updateTimelineSearchSummary(rawQuery, recientes.length, recientesBase.length);
       // Ordenar por fecha descendente
       recientes.sort((a, b) => new Date(b.fecha_cambio) - new Date(a.fecha_cambio));
       // Agrupar por semana (lunes a domingo)
@@ -226,6 +1043,10 @@
       // Renderizar con drawer/collapsable (mostrar altas y bajas)
       let html = '';
       const semanas = Object.keys(agrupado).sort((a,b)=>new Date(b.split('/').reverse().join('-'))-new Date(a.split('/').reverse().join('-')));
+      if (!semanas.length) {
+        d3.select('#timeline-table').html('<p style="color:#999;text-align:center;padding:1rem;">No se encontraron movimientos que coincidan con la búsqueda.</p>');
+        return;
+      }
       semanas.forEach((semana, idx) => {
         const items = agrupado[semana];
         const count = items.length;
@@ -280,6 +1101,68 @@
           drawer.querySelector('.semana-table').style.opacity = '0';
           drawer.querySelector('.semana-table').style.pointerEvents = 'none';
         }
+      }
+    }
+
+    Promise.all([
+      d3.json('data/estadisticas.json'),
+      d3.dsv(',', 'data/alg-historico.csv', d3.autoType),
+      d3.dsv(',', 'data/altas_bajas.csv', d3.autoType)
+    ]).then(function([stats, historico, altasBajas]) {
+      _statsGlobal = stats;
+      _historicoData = historico;
+      _altasBajasData = altasBajas;
+
+      renderStatsAndTrend(stats);
+      renderTimeline(altasBajas);
+
+      const fechasAlta = historico.map(row => parseDate(row.fecha_alta)).filter(Boolean);
+      if (fechasAlta.length) {
+        const minDate = d3.min(fechasAlta);
+        const maxDate = d3.max(fechasAlta);
+        _filterBounds = { min: minDate, max: maxDate };
+        const desdeInput = document.getElementById('fecha-desde');
+        const hastaInput = document.getElementById('fecha-hasta');
+        desdeInput.min = toInputDate(minDate);
+        desdeInput.max = toInputDate(maxDate);
+        hastaInput.min = toInputDate(minDate);
+        hastaInput.max = toInputDate(maxDate);
+      }
+
+      document.getElementById('fecha-desde').addEventListener('change', applyCustomFilter);
+      document.getElementById('fecha-hasta').addEventListener('change', applyCustomFilter);
+      document.querySelectorAll('.filter-chip[data-range]').forEach(button => {
+        button.addEventListener('click', function() {
+          applyPresetRange(this.dataset.range);
+        });
+      });
+      document.getElementById('btn-todo').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('fecha-desde').value = '';
+        document.getElementById('fecha-hasta').value = '';
+        const customPanel = document.getElementById('custom-filter-panel');
+        if (customPanel) customPanel.open = false;
+        updateFilterUi('all');
+        renderAnalytics();
+      });
+      document.getElementById('timeline-search').addEventListener('input', function() {
+        const clearButton = document.getElementById('timeline-search-clear');
+        clearButton.disabled = !this.value.trim();
+        renderTimeline(_altasBajasData, { query: this.value });
+      });
+      document.getElementById('timeline-search-clear').addEventListener('click', function() {
+        const searchInput = document.getElementById('timeline-search');
+        searchInput.value = '';
+        this.disabled = true;
+        renderTimeline(_altasBajasData);
+        searchInput.focus();
+      });
+
+      if (_filterBounds.max) {
+        applyPresetRange('3m');
+      } else {
+        updateFilterUi('all');
+        renderAnalytics();
       }
     });
   </script>
