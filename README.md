@@ -47,20 +47,20 @@ _Esta sección se actualiza automáticamente en cada ejecución_
 | Métrica | Valor |
 |---------|-------|
 | 📅 Inicio del monitoreo | 2025-07-26 |
-| 🔄 Última actualización | 2026-06-29 |
-| 🕒 Último cambio detectado | 2026-06-29 |
-| ✅ Productos activos | 26,503 |
-| ❌ Productos dados de baja | 1,234 |
-| 📊 Total histórico | 27,737 |
+| 🔄 Última actualización | 2026-07-06 |
+| 🕒 Último cambio detectado | 2026-07-06 |
+| ✅ Productos activos | 25,338 |
+| ❌ Productos dados de baja | 2,442 |
+| 📊 Total histórico | 27,780 |
 
 ### Últimas actualizaciones
 
 | Semana | Altas (Nuevos/Reactivados) | Bajas |
 |--------|------------------------|-------|
+| 2026-07-12 | 43 (43/0) | 1208 |
 | 2026-07-05 | 91 (91/0) | 14 |
 | 2026-06-28 | 66 (66/0) | 15 |
 | 2026-06-21 | 135 (135/0) | 36 |
-| 2026-06-14 | 90 (90/0) | 4 |
 
 ## Consultas útiles
 
